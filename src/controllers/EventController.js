@@ -305,7 +305,6 @@ const createActivity = async (req, res) => {
     }
 }
 
-
 const getActivitiesForEvent = async (req, res) => {
     try {
         const { id } = req.params;
@@ -388,6 +387,47 @@ const editActivity = async (req, res) => {
     } catch (e) {
         return res.status(500).json({
             message: 'Error updating activity',
+            error: e.message || e
+        });
+    }
+}
+
+const deleteActivity = async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        // Check that the activity id was provided
+        if (!id) {
+            return res.status(400).json({
+                message: 'Activity ID is required'
+            });
+        }
+
+        // Check if the activity exists
+        const existingActivity = await EventRepo.findActivityById(id);
+        if (!existingActivity) {
+            return res.status(404).json({
+                message: 'Activity not found'
+            });
+        }
+
+        // Delete activity
+        const rowsDeleted = await EventRepo.deleteActivity(id);
+
+        // Check to make sure the activity was deleted
+        if (rowsDeleted <= 0) {
+            return res.status(404).json({
+                message: 'Activity could not be deleted (not found or already removed)'
+            });
+        }
+
+        return res.status(200).json({
+            message: 'Activity deleted successfully',
+            deletedId: id
+        });
+    } catch (e) {
+        return res.status(500).json({
+            message: 'Error deleting activity',
             error: e.message || e
         });
     }
@@ -492,5 +532,7 @@ module.exports = {
     createCategory,
     getCategoriesForEvent,
     editCategory,
-    editActivity
+    editActivity,
+    updateEvent,
+    deleteActivity
 }

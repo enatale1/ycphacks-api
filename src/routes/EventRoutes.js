@@ -13,7 +13,9 @@ const {
     createCategory,
     getCategoriesForEvent,
     editCategory,
-    editActivity
+    editActivity,
+    updateEvent,
+    deleteActivity
 } = require('../controllers/EventController')
 
 router.post('/create', createEvent)
@@ -24,6 +26,7 @@ router.put('/update', editEvent)
 router.delete('/delete/:id', deleteEvent)
 router.post('/activity/', createActivity)
 router.get('/activity/:id', getActivitiesForEvent)
+router.delete('/activity/:id', deleteActivity)
 router.post('/category/', createCategory)
 router.get('/category/:id', getCategoriesForEvent)
 router.put('/category', editCategory)

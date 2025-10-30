@@ -36,6 +36,10 @@ const EventRepo = {
         return Activity.update({ ...newActivity }, { where: { id: newActivity.id }});
     },
 
+    async deleteActivity(activityId) {
+      return Activity.destroy({ where: { id: activityId } })
+    },
+
     async findActivityById(activityId) {
       return Activity.findOne({ where: { id: activityId } });
     },

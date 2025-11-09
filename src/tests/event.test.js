@@ -115,22 +115,6 @@ describe('POST /create', () => {
         expect(res.body.errors.startDate).toEqual('Invalid date format');
     });
 
-    it('returns 400 (start date in past)', async () => {
-        // Act: send the HTTP request
-        const res = await request(app)
-            .post('/event/create')
-            .send({
-                ...validEventCreateRequest,
-                startDate: '2000-01-01T01:00:00Z'
-            });
-
-        // Assert: response checks
-        expect(res.statusCode).toEqual(400);
-        expect(res.body).toHaveProperty('message', 'Validation errors occurred');
-        expect(Object.keys(res.body.errors).length).toEqual(1);  // There should be exactly one validation error
-        expect(res.body.errors.startDate).toEqual('Date cannot be in the past');
-    });
-
     it('returns 400 (no end date)', async () => {
         // Act: send the HTTP request
         const res = await request(app)

@@ -31,13 +31,11 @@ class Event {
             errors.eventName = "Name cannot be more than 100 characters";
         }
 
-        // 3. Validate start date presence, start date is in valid format, and start date is not in the past
+        // 3. Validate start date presence and start date is in valid format
         if (!this.startDate) {
             errors.startDate = "Date is required";
         } else if (!dateRegex.test(this.startDate)) {
             errors.startDate = "Invalid date format";
-        } else if (Date.parse(this.startDate) <= new Date()) {
-            errors.startDate = "Date cannot be in the past"
         }
 
         // 4. Validate end date presence, end date is in valid format, and end date is not before start date

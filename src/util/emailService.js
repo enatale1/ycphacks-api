@@ -1,37 +1,27 @@
-const nodemailer = require('nodemailer');
-const path = require('path');
+const brevo = require('@getbrevo/brevo');
 
-const transporter = nodemailer.createTransport({
-    service: 'gmail',
-    auth: {
-        user: process.env.APP_EMAIL,
-        pass: process.env.APP_EMAIL_PASSWORD, // Gmail app password
-    },
-});
+const apiInstance = new brevo.TransactionalEmailsApi();
+apiInstance.authentications['apiKey'].apiKey = process.env.EMAIL_API_KEY;
 
 async function sendRegistrationConfirmation(to, firstName) {
-    const mailOptions = {
-        from: `"YCP Hacks" <${process.env.APP_EMAIL}>`,
-        to,
-        subject: 'Welcome to YCP Hacks!',
-        html: `
-      <h2>Hi ${firstName},</h2>
-      <p>Thanks for registering for YCP Hacks!</p>
-      <p>We’re excited to have you join us! Visit the YCP Hacks website to stay up-to-date on event details and announcements.</p>
-      <br>
-      <p>- The YCP Hacks Team</p>
-      <img src="cid:logo" alt="YCP Hacks Logo" style="width: 120px; margin-bottom: 20px;">
-    `,
-        attachments: [
-            {
-                filename: 'ycphacks_logo.png',
-                path: path.join(__dirname, '../assets/ycphacks_logo.png'),
-                cid: 'logo'
-            }
-        ]
+    const sendSmtpEmail = new brevo.SendSmtpEmail();
+
+    sendSmtpEmail.to = [{ email: to }];
+    sendSmtpEmail.sender = { email: process.env.FROM_EMAIL, name: 'YCP Hacks' };
+
+    // This is the ID of the template we created through Brevo's website
+    sendSmtpEmail.templateId = 1;
+
+    // These correspond to variables in the template
+    sendSmtpEmail.params = {
+        firstName: firstName
     };
 
-    await transporter.sendMail(mailOptions);
+    try {
+        await apiInstance.sendTransacEmail(sendSmtpEmail);
+    } catch (error) {
+        console.error('Error sending email:', error);
+    }
 }
 
 module.exports = { sendRegistrationConfirmation };

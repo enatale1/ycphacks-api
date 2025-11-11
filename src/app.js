@@ -3,6 +3,7 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const { sequelize } = require('./repository/config/index'); // <-- destructure the instance
+const { attachAuditHooks } = require('./repository/config/Models');
 const userRoutes = require('./routes/UserRoutes');
 const eventRoutes = require('./routes/EventRoutes');
 const hardwareRoutes = require('./routes/HardwareRoutes');
@@ -45,6 +46,7 @@ async function startServer() {
     if (process.env.NODE_ENV !== 'test') {
       // Sync only in non-test environments
       await sequelize.sync({ alter: true });
+      attachAuditHooks();
       console.log('✅ Database synchronized successfully.');
     }
     app.listen(port, () => {

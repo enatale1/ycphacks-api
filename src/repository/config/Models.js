@@ -88,6 +88,11 @@ User.hasMany(EventParticipant, { foreignKey: 'userId' });
 // Function to attach model hooks
 function attachAuditHooks() {
     const { AuditLog } = sequelize.models; // Grab all the models
+    if (!AuditLog) {
+        console.warn("AuditLog model not yet initialized. Hooks not attached.");
+        return;
+    }
+
     const ignored = ['AuditLog', 'User']; // We don't want to audit the audit table itself or include participant actions
     const cleanData = (obj) => { // Remove sensitive/unnecessary information like password
         if (!obj) return null;
@@ -138,11 +143,10 @@ function attachAuditHooks() {
     }
 }
 
-attachAuditHooks();
-
 // Export models
 module.exports = {
     sequelize,
+    attachAuditHooks,
     User,
     Team,
     Event,

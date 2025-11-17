@@ -2,7 +2,7 @@ const { Op } = require('sequelize');
 const AuditLog = require('./AuditLog');
 
 const AuditLogRepo = {
-    async getAllLogs(filters = {}) {
+    async getAllLogs(filters = {}, limit = 100, page = 1) {
         const where = {};
 
         if (filters.tableName) where.tableName = filters.tableName;
@@ -16,11 +16,20 @@ const AuditLogRepo = {
             if (filters.end) where.createdAt[Op.lte] = new Date(filters.end);
         }
 
-        return AuditLog.findAll({
+        // Get offset using current page
+        const offset = (page - 1) * limit;
+
+        const result = await AuditLog.findAndCountAll({
             where,
             order: [['createdAt', filters.sort === 'ASC' ? 'ASC' : 'DESC']],
-            limit: filters.limit || 100
+            limit: limit,
+            offset: offset
         });
+
+        return {
+            count: result.count,
+            logs: result.rows
+        }
     },
 };
 

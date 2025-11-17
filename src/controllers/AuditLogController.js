@@ -3,34 +3,34 @@ const AuditLogRepo = require("../repository/audit/AuditLogRepo");
 const getAllLogs = async (req, res) => {
     try {
         // Get filters sent by frontend
-        const {
+        let {
             tableName,
             userId,
             action,
             start,
             end,
             sort = 'DESC',
-            limit = 100
+            limit,
+            page
         } = req.body;
 
-        // Put filters into single object
-        const filters = {
-            tableName,
-            userId,
-            action,
-            start,
-            end,
-            sort,
-            limit: parseInt(limit, 10)
-        };
+        // Put filters into single object and clean values
+        const filters = { tableName, userId, action, start, end, sort };
+        limit = Number(limit) || 100;
+        page = Number(page) || 1;
 
         // Retrieve logs from DB based on filters
-        const logs = await AuditLogRepo.getAllLogs(filters);
+        const { count, logs } = await AuditLogRepo.getAllLogs(filters, limit, page);
 
         return res.status(200).json({
             message: 'Audit logs retrieved successfully',
-            count: logs.length,
-            logs: logs
+            logs: logs,
+            pagination: {
+                page: page,
+                limit: limit,
+                totalCount: count,
+                totalPages: Math.ceil(count / limit)
+            }
         });
     } catch (e) {
         return res.status(500).json({

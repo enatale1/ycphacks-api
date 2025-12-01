@@ -83,7 +83,7 @@ Team.hasMany(EventParticipant, { foreignKey: 'teamId' });
 EventParticipant.belongsTo(Team, { foreignKey: 'teamId' });
 
 EventParticipant.belongsTo(User, { foreignKey: 'userId', as: 'userDetails' });
-User.hasMany(EventParticipant, { foreignKey: 'userId' });
+User.hasMany(EventParticipant, { foreignKey: 'userId', as:'participant' });
 
 /* HARDWARE/IMAGE ASSOCIATIONS */
 Hardware.hasMany(HardwareImage, {

@@ -1,4 +1,5 @@
 const { User } = require('../config/Models');  // Adjust the path based on your folder structure
+const EventParticipantRepo = require('../team/EventParticipantRepo');
 
 const UserRepo = {
     // Method to create a new user
@@ -14,6 +15,9 @@ const UserRepo = {
     },
     async getAllUsers() {
         return await User.findAll();
+    },
+    async getUsersByEvent(eventId) {
+        return EventParticipantRepo.getUsersByEvent(eventId);
     },
 
     async updateCheckInStatus(userId, checkInStatus){

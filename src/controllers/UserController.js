@@ -20,6 +20,12 @@ const createUser = async (req, res) => {
 
         // convert user into user model
         const userData = req.body
+        const { eventId } = req.body;
+
+        if(!eventId){
+            return res.status(400).json({ message: 'Missing eventId in request body.' });
+        }
+
         const hashedPassword = await bcrypt.hash(userData.password, SALT_ROUNDS);
         const user = new User(
             userData.firstName,
@@ -93,6 +99,8 @@ const createUser = async (req, res) => {
 
         // persist user  ONLY IF THE DATA IS VALID
         const persistedUser = await UserRepo.create(userObj);
+
+        await EventParticipantRepo.addParticipant(persistedUser.id, eventId);
 
         // generate JWT
         const token = generateToken({ email: user.email });

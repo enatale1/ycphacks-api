@@ -99,6 +99,7 @@ const HardwareRepo = {
     async updateHardware(id, updatedFields) {
         return Hardware.update(updatedFields, {
             where: { id },
+            individualHooks: true
         });
     },
 
@@ -106,6 +107,7 @@ const HardwareRepo = {
     async deleteHardware(id) {
         return Hardware.destroy({
             where: { id },
+            individualHooks: true
         });
     },
 

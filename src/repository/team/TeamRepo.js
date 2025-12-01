@@ -25,7 +25,8 @@ const TeamRepo = {
         const [rowsUpdated] = await Team.update(
             teamData,
             {
-                where: {id: teamId}
+                where: {id: teamId},
+                individualHooks: true
             }
         );
         return rowsUpdated;

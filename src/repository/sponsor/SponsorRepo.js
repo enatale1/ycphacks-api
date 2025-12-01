@@ -28,10 +28,10 @@ const SponsorRepo = {
         return Sponsor.create(sponsor);
     },
     async updateSponsor(id, updates){
-        return Sponsor.update(updates, {where: {id}});
+        return Sponsor.update(updates, {where: {id}, individualHooks: true});
     },
     async deleteSponsorById(id){
-        return Sponsor.destroy({where: {id}});
+        return Sponsor.destroy({where: {id}, individualHooks: true});
     },
 
     //EventSponsor
@@ -57,7 +57,8 @@ const SponsorRepo = {
     },
     async deleteSponsorTierById(id){
         return SponsorTier.destroy({
-            where: { id }
+            where: { id },
+            individualHooks: true
         });
     },
     async getAllSponsorTier(){

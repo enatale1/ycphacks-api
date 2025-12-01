@@ -13,9 +13,9 @@ const Team = require('../team/Team');
 const HackCategory = require('../event/HackCategory');
 const Prize = require('../event/Prize');
 const Analytics = require('../analytics/Analytics');
-
 const Image = require('../image/Image');
 const Activity = require('../event/Activity');
+const AuditLog = require('../audit/AuditLog');
 
 /* EVENT ASSOCIATIONS */
 
@@ -85,6 +85,61 @@ EventParticipant.belongsTo(Team, { foreignKey: 'teamId' });
 EventParticipant.belongsTo(User, { foreignKey: 'userId', as: 'userDetails' });
 User.hasMany(EventParticipant, { foreignKey: 'userId' });
 
+// Function to attach model hooks
+function attachAuditHooks() {
+    const { AuditLog } = sequelize.models; // Grab all the models
+    const ignored = ['AuditLog', 'User']; // We don't want to audit the audit table itself or include participant actions
+    const cleanData = (obj) => { // Remove sensitive/unnecessary information like password
+        if (!obj) return null;
+        const data = obj.toJSON();
+        delete data.password;
+        return data;
+    };
+
+    for (const modelName of Object.keys(sequelize.models)) {
+        if (ignored.includes(modelName)) continue;
+
+        const model = sequelize.models[modelName];
+
+        // after create
+        model.addHook('afterCreate', async (instance, options) => {
+            await AuditLog.create({
+                tableName: modelName,
+                recordId: instance.id,
+                action: 'CREATE',
+                newValue: cleanData(instance),
+                userId: options.userId || null
+            });
+        });
+
+        // before update
+        model.addHook('beforeUpdate', async (instance, options) => {
+            const previous = await model.findByPk(instance.id);
+            await AuditLog.create({
+                tableName: modelName,
+                recordId: instance.id,
+                action: 'UPDATE',
+                oldValue: previous ? cleanData(previous) : null,
+                newValue: cleanData(instance),
+                userId: options.userId || null
+            });
+        });
+
+        // before destroy
+        model.addHook('beforeDestroy', async (instance, options) => {
+            await AuditLog.create({
+                tableName: modelName,
+                recordId: instance.id,
+                action: 'DELETE',
+                oldValue: cleanData(instance),
+                userId: options.userId || null
+            });
+        });
+    }
+}
+
+attachAuditHooks();
+
 // Export models
 module.exports = {
     sequelize,
@@ -101,5 +156,6 @@ module.exports = {
     Image,
     Analytics,
     Hardware,
-    HardwareImage
+    HardwareImage,
+    AuditLog
 };

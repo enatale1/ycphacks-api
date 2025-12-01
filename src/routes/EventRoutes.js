@@ -31,5 +31,6 @@ router.post('/category/', createCategory)
 router.get('/category/:id', getCategoriesForEvent)
 router.put('/category', editCategory)
 router.put('/activity', editActivity)
+router.put('/update', updateEvent)
 
 module.exports = router;

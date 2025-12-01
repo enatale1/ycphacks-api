@@ -79,10 +79,10 @@ HackCategory.belongsTo(Event, {
     onDelete: 'CASCADE',
 });
 
-Team.hasMany(EventParticipant, { foreignKey: 'teamId' });
+Team.hasMany(EventParticipant, { foreignKey: 'teamId', as: 'EventParticipants' });
 EventParticipant.belongsTo(Team, { foreignKey: 'teamId' });
 
-EventParticipant.belongsTo(User, { foreignKey: 'userId', as: 'userDetails' });
+EventParticipant.belongsTo(User, { foreignKey: 'userId', as: 'participants', targetKey: 'id' });
 User.hasMany(EventParticipant, { foreignKey: 'userId' });
 
 // Function to attach model hooks

@@ -33,12 +33,12 @@ const mockEventParticipantsData = [
     {
         userId: MOCK_USER_ID_1,
         teamId: MOCK_TEAM_ID,
-        userDetails: mockParticipant1,
+        participants: mockParticipant1,
     },
     {
         userId: MOCK_USER_ID_2,
         teamId: MOCK_TEAM_ID,
-        userDetails: mockParticipant2,
+        participants: mockParticipant2,
     },
 ];
 
@@ -417,9 +417,9 @@ describe('EventParticipantController', () => {
     // --------------------------------------------------------------------------
     describe('GET /teams/unassignedParticipants', () => {
         const mockUnassigned = [
-            { userId: 301, teamId: null, eventId: 1, userDetails: { id: 301, firstName: 'A', lastName: 'Unassigned', email: 'a@example.com', checkIn: true, isBanned: false } },
-            { userId: 302, teamId: null, eventId: 1, userDetails: { id: 302, firstName: 'B', lastName: 'Unassigned', email: 'b@example.com', checkIn: false, isBanned: 0 } },
-            { userId: 303, teamId: null, eventId: 1, userDetails: { id: 303, firstName: 'C', lastName: 'Banned', email: 'c@example.com', checkIn: true, isBanned: true } }, // Should be filtered out
+            { userId: 301, teamId: null, eventId: 1, participants: { id: 301, firstName: 'A', lastName: 'Unassigned', email: 'a@example.com', checkIn: true, isBanned: false } },
+            { userId: 302, teamId: null, eventId: 1, participants: { id: 302, firstName: 'B', lastName: 'Unassigned', email: 'b@example.com', checkIn: false, isBanned: 0 } },
+            { userId: 303, teamId: null, eventId: 1, participants: { id: 303, firstName: 'C', lastName: 'Banned', email: 'c@example.com', checkIn: true, isBanned: true } }, // Should be filtered out
         ];
         const expectedFormatted = [
             { id: 301, firstName: 'A', lastName: 'Unassigned', email: 'a@example.com', checkIn: true, teamId: null },

@@ -1,4 +1,6 @@
 const EventParticipantsRepo = require('../repository/team/EventParticipantRepo');
+const TeamRepo = require('../repository/team/TeamRepo')
+const EventRepo = require('../repository/event/EventRepo')
 
 class EventParticipantController{
     static async getUnassignedParticipants(req, res) {
@@ -8,15 +10,15 @@ class EventParticipantController{
             const participants = await EventParticipantsRepo.findUnassignedParticipants(eventId);
 
             const nonBannedParticipants = participants.filter(p =>
-                p.userDetails && p.userDetails.isBanned !== true && p.userDetails.isBanned !== 1
+                p.participants && p.participants.isBanned !== true && p.participants.isBanned !== 1
             );
 
             const formattedParticipants = nonBannedParticipants.map(p => ({
                 id: p.userId,
-                firstName: p.userDetails?.firstName,
-                lastName: p.userDetails?.lastName,
-                email: p.userDetails?.email,
-                checkIn: p.userDetails?.checkIn,
+                firstName: p.participants?.firstName,
+                lastName: p.participants?.lastName,
+                email: p.participants?.email,
+                checkIn: p.participants?.checkIn,
                 teamId: p.teamId
             }));
 
@@ -92,6 +94,66 @@ class EventParticipantController{
         }catch(err){
             console.error("Error fetching user team status:", err);
             return res.status(500).json({ message: 'Server error retrieving team status' });
+        }
+    }
+    static async getTeamsByEvent(req, res) {
+        try {
+            // 1. Get eventId from query parameters
+            let { eventId } = req.query;
+
+            if (eventId === 'undefined' || eventId === '') {
+                const activeEvent = await EventRepo.findActiveEvent();
+
+                if (!activeEvent) {
+                    return res.status(404).json({ error: "No eventId provided and no active event found." });
+                }
+                eventId = activeEvent.id;
+            }
+
+            if (!eventId) {
+                return res.status(500).json({ error: "Internal error: Failed to determine event ID." });
+            }
+
+            // 2. Call a new repository function to get teams filtered by event
+            const teams = await TeamRepo.getTeamsByEvent(eventId); 
+
+            // 3. Map the data for the response
+            const teamData = teams.map(team => ({
+                id: team.id,
+                teamName: team.teamName,
+                presentationLink: team.presentationLink || null,
+                githubLink: team.githubLink || null, 
+                projectName: team.projectName || null,
+                projectDescription: team.projectDescription || null,
+                
+                // Map the team members list
+                participants: team.EventParticipants ? 
+                    team.EventParticipants.map(participant => {
+                        const user = participant.participants; 
+                        
+                        // Safety check remains valid
+                        if (!user) {
+                            console.warn(`Participant record in team ${team.id} is missing User details.`);
+                            return 'Unknown User'; 
+                        }
+                        
+                        return {
+                            id: user.id,
+                            firstName: user.firstName,
+                            lastName: user.lastName
+                        };
+                    })
+                    : []
+            }));
+
+            res.status(200).json({ 
+                message: `Successfully fetched teams for event ${eventId}`, 
+                data: teamData 
+            });
+
+        } catch (err) {
+            console.error('Error getting teams by event:', err);
+            res.status(500).json({ message: 'Error getting teams by event', error: err.message });
         }
     }
 }

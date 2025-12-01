@@ -9,7 +9,7 @@ class EventParticipantRepo {
             where: { teamId: teamId },
             include: [{ 
                 model: User, 
-                as: 'userDetails',
+                as: 'participants',
                 attributes: ['id', 'firstName', 'lastName', 'isBanned'],
                 where: {
                     isBanned: { [Op.not]: true }
@@ -24,7 +24,7 @@ class EventParticipantRepo {
             
             include: [{ 
                 model: User, 
-                as: 'userDetails',
+                as: 'participants',
                 attributes: [],
                 where: {
                     isBanned: { [Op.not]: true }
@@ -44,7 +44,7 @@ class EventParticipantRepo {
             },
             include: [{ 
                 model: User, 
-                as: 'userDetails',
+                as: 'participants',
                 attributes: ['id', 'firstName', 'lastName', 'email', 'checkIn', 'isBanned'] ,
                 where: {
                     checkIn: 1,

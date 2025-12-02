@@ -91,6 +91,10 @@ Hardware.hasMany(HardwareImage, {
     as: 'images'
 });
 HardwareImage.belongsTo(Hardware, { foreignKey: 'hardwareId' });
+
+/* SPONSOR/IMAGE Association */
+Sponsor.belongsTo(Image, { foreignKey: "sponsorImageId" });
+
 // Function to attach model hooks
 function attachAuditHooks() {
     const { AuditLog } = sequelize.models; // Grab all the models

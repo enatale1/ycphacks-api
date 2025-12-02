@@ -97,6 +97,35 @@ class EventParticipantController{
             return res.status(500).json({ message: 'Server error retrieving team status' });
         }
     }
+  async getTeamsByEvent(eventId) {
+        return await Team.findAll({
+            where: {
+                eventId: eventId
+            },
+            include: [
+                {
+                    model: EventParticipant,
+                    as: 'EventParticipants',
+                    attributes: ['userId', 'teamId'],
+                    include: [{
+                        model: User,
+                        as: 'participants',
+                        attributes: ['id', 'firstName', 'lastName'],
+                        required: true
+                    }]
+                }
+            ],
+            // Select the specific fields needed for the response mapping
+            attributes: [
+                'id', 
+                'teamName', 
+                'presentationLink', 
+                'githubLink', 
+                'projectName', 
+                'projectDescription'
+            ],
+        });
+    }
     static async addParticipantToEvent(req, res){
         const {userId, eventId} = req.body;
 

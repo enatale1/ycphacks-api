@@ -1,5 +1,6 @@
 const EventSponsorRepo = require("../repository/sponsor/EventSponsorRepo");
 const SponsorRepo = require("../repository/sponsor/SponsorRepo");
+const ImageRepo = require("../repository/image/ImageRepo");
 
 const setDefaultImageDimensions = (tierName) => {
     switch (tierName.toLowerCase()) {
@@ -31,7 +32,7 @@ class EventSponsorController {
             id: s.id,
             name: s.sponsorName,
             website: s.sponsorWebsite,
-            image: s.sponsorImageId || "",
+            imageUrl: s.Image?.url || "",
             amount: s.amount ?? 0,
             tier: eventSponsor?.SponsorTier?.tier || "",
           };
@@ -65,7 +66,7 @@ class EventSponsorController {
             id: s.id,
             name: s.sponsorName,
             website: s.sponsorWebsite,
-            image: s.sponsorImageId || "",
+            imageUrl: s.Image?.url || "",
             sponsorTierId: eventSponsor?.sponsorTierId
           };
         });
@@ -80,16 +81,22 @@ class EventSponsorController {
 //    Add sponsor to an event
     static async addSponsorToEvent(req, res){
         try {
-          const { sponsorName, sponsorWebsite, image, amount, sponsorTierId, eventId } = req.body;
+          const { sponsorName, sponsorWebsite, imageUrl, amount, sponsorTierId, eventId } = req.body;
 
           if (!eventId || !sponsorName) {
               return res.status(400).json({ error: "Missing required fields: eventId and sponsorName are required." });
           }
 
+          const imageId = await ImageRepo.createImage({url: imageUrl})
+
+            if (!imageId) {
+                return res.status(400).json({ error: "Image could not be stored." });
+            }
+
           const result = await EventSponsorRepo.addSponsorToEvent(eventId, {
             sponsorName,
             sponsorWebsite,
-            image,
+            sponsorImageId: imageId,
             amount: Number(amount),
             sponsorTierId
           });
@@ -105,13 +112,19 @@ class EventSponsorController {
     static async updateEventSponsor(req, res){
         try{
             const sponsorId = req.params.id;
-            const { sponsorName, sponsorWebsite, image, amount, sponsorTierId, eventId, ...otherUpdates } = req.body;
-            
+            const { sponsorName, sponsorWebsite, imageUrl, amount, sponsorTierId, eventId, ...otherUpdates } = req.body;
+
+            const imageId = await ImageRepo.createImage({url: imageUrl})
+
+            if (!imageId) {
+                return res.status(400).json({ error: "Image could not be stored." });
+            }
+
             // --- 1. Separate Updates for Sponsor (Core) Table ---
             const sponsorUpdates = {
                 ...(sponsorName !== undefined && { sponsorName }),
                 ...(sponsorWebsite !== undefined && { sponsorWebsite }),
-                ...(image !== undefined && { sponsorImageId: image }),
+                ...({ sponsorImageId: imageId }),
                 ...(amount !== undefined && { amount: Number(amount) }), 
             };
 

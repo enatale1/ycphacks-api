@@ -4,10 +4,11 @@ const router = express.Router();
 const { checkBodyForSpecialCharacters } = require('../middleware/validationMiddleware');
 const EventSponsorController = require('../controllers/EventSponsorController');
 const {createImage, deleteImage, getImagesBySponsorId} = require("../controllers/SponsorImagesController");
+const upload = require("../controllers/UploadController");
 
 router.get("/", EventSponsorController.getEventSponsors);
 router.post("/", 
-    checkBodyForSpecialCharacters, 
+    checkBodyForSpecialCharacters,
     EventSponsorController.addSponsorToEvent);
 router.put("/:id", 
     checkBodyForSpecialCharacters,

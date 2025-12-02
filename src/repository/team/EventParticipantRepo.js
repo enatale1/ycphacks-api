@@ -73,6 +73,7 @@ class EventParticipantRepo {
                 attributes: ['id', 'firstName', 'lastName', 'email', 'checkIn', 'isBanned'] ,
                 where: {
                     checkIn: 1,
+                    role: 'participant',
                     isBanned: {[Op.not]: true}
                 }
             }],

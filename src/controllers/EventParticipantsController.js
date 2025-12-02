@@ -2,6 +2,7 @@ const EventParticipantsRepo = require('../repository/team/EventParticipantRepo')
 const TeamRepo = require('../repository/team/TeamRepo')
 const EventRepo = require('../repository/event/EventRepo')
 const UserRepo = require('../repository/user/UserRepo')
+const EventController = require('../controllers/EventController')
 
 class EventParticipantController{
     static async getUnassignedParticipants(req, res) {
@@ -97,62 +98,6 @@ class EventParticipantController{
             return res.status(500).json({ message: 'Server error retrieving team status' });
         }
     }
-  async getTeamsByEvent(eventId) {
-        return await Team.findAll({
-            where: {
-                eventId: eventId
-            },
-            include: [
-                {
-                    model: EventParticipant,
-                    as: 'EventParticipants',
-                    attributes: ['userId', 'teamId'],
-                    include: [{
-                        model: User,
-                        as: 'participants',
-                        attributes: ['id', 'firstName', 'lastName'],
-                        required: true
-                    }]
-                }
-            ],
-            // Select the specific fields needed for the response mapping
-            attributes: [
-                'id', 
-                'teamName', 
-                'presentationLink', 
-                'githubLink', 
-                'projectName', 
-                'projectDescription'
-            ],
-        });
-    }
-    static async addParticipantToEvent(req, res){
-        const {userId, eventId} = req.body;
-
-        if(!userId || !eventId){
-            return res.status(400).json({ message: 'Missing userId or eventId in request body.' });
-        }
-
-        try {
-            // The repository method should handle creating the new EventParticipant record.
-            const newParticipant = await EventParticipantsRepo.addParticipant(userId, eventId);
-
-            return res.status(201).json({ 
-                message: `User ${userId} successfully added as participant to Event ${eventId}.`,
-                data: newParticipant 
-            });
-        } catch (error) {
-            console.error("Error adding participant to event:", error);
-            // Check for specific error like duplicate entry if the repo provides it
-            if (error.message.includes('duplicate')) { 
-                return res.status(409).json({ message: 'Participant is already registered for this event.', error: error.message });
-            }
-            res.status(500).json({ 
-                message: 'Failed to add participant to event.', 
-                error: error.message 
-            });
-        }
-    }
     static async getTeamsByEvent(req, res) {
         try {
             // 1. Get eventId from query parameters
@@ -212,6 +157,62 @@ class EventParticipantController{
             console.error('Error getting teams by event:', err);
             res.status(500).json({ message: 'Error getting teams by event', error: err.message });
         }
+    }
+    static async addParticipantToEvent(req, res){
+        const {userId, eventId} = req.body;
+
+        if(!userId || !eventId){
+            return res.status(400).json({ message: 'Missing userId or eventId in request body.' });
+        }
+
+        try {
+            // The repository method should handle creating the new EventParticipant record.
+            const newParticipant = await EventParticipantsRepo.addParticipant(userId, eventId);
+
+            return res.status(201).json({ 
+                message: `User ${userId} successfully added as participant to Event ${eventId}.`,
+                data: newParticipant 
+            });
+        } catch (error) {
+            console.error("Error adding participant to event:", error);
+            // Check for specific error like duplicate entry if the repo provides it
+            if (error.message.includes('duplicate')) { 
+                return res.status(409).json({ message: 'Participant is already registered for this event.', error: error.message });
+            }
+            res.status(500).json({ 
+                message: 'Failed to add participant to event.', 
+                error: error.message 
+            });
+        }
+    }
+    async getTeamsByEvent(eventId) {
+        return await Team.findAll({
+            where: {
+                eventId: eventId
+            },
+            include: [
+                {
+                    model: EventParticipant,
+                    as: 'EventParticipants',
+                    attributes: ['userId', 'teamId'],
+                    include: [{
+                        model: User,
+                        as: 'participants',
+                        attributes: ['id', 'firstName', 'lastName'],
+                        required: true
+                    }]
+                }
+            ],
+            // Select the specific fields needed for the response mapping
+            attributes: [
+                'id', 
+                'teamName', 
+                'presentationLink', 
+                'githubLink', 
+                'projectName', 
+                'projectDescription'
+            ],
+        });
     }
     static async getUsersByEvent(req, res){
         try {

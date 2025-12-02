@@ -99,7 +99,7 @@ function attachAuditHooks() {
         return;
     }
 
-    const ignored = ['AuditLog', 'User']; // We don't want to audit the audit table itself or include participant actions
+    const ignored = ['AuditLog', 'User', 'EventParticipant']; // We don't want to audit the audit table itself or include participant actions
     const cleanData = (obj) => { // Remove sensitive/unnecessary information like password
         if (!obj) return null;
         const data = obj.toJSON();

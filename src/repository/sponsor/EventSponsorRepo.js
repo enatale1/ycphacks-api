@@ -2,6 +2,7 @@ const EventSponsor = require("./EventSponsor");
 const SponsorRepo = require("./SponsorRepo");
 const Sponsor = require("./Sponsor");
 const SponsorTier = require("./SponsorTier");
+const Image = require("../image/Image");
 const { Op } = require('sequelize');
 
 class EventSponsorRepo {
@@ -20,7 +21,12 @@ class EventSponsorRepo {
                 required: false
               }
             ]
-          }
+          },
+        {
+            model: Image,
+            attributes: ["id", "url"],
+            required: false
+        }
         ],
         attributes: ["id", "sponsorName", "sponsorWebsite", "sponsorImageId", "amount"]
       });
@@ -31,7 +37,7 @@ class EventSponsorRepo {
         const sponsor = await SponsorRepo.createSponsor({
           sponsorName: sponsorData.sponsorName,
           sponsorWebsite: sponsorData.sponsorWebsite,
-          sponsorImageId: sponsorData.image || null,
+          sponsorImageId: sponsorData.sponsorImageId || null,
           amount: sponsorData.amount
         });
 

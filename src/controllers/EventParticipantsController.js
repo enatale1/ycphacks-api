@@ -1,5 +1,6 @@
 const EventParticipantsRepo = require('../repository/team/EventParticipantRepo');
 const EventRepo = require('../repository/event/EventRepo')
+const UserRepo = require('../repository/user/UserRepo')
 
 class EventParticipantController{
     static async getUnassignedParticipants(req, res) {
@@ -164,6 +165,24 @@ class EventParticipantController{
             res.status(500).json({ message: 'Error getting users by event', error: err.message });
         }
     }
+    static async getStaffForEvent(req, res){
+        // Assuming eventId is passed via URL params, e.g., /api/events/1/staff
+        const eventId = req.params.eventId; 
+        
+        if (!eventId) {
+            return res.status(400).json({ message: 'Missing event ID in request.' });
+        }
+
+        try {
+            const staff = await UserRepo.getStaffForEvent(eventId);
+            
+            // Send the data back to the frontend
+            res.status(200).json(staff);
+        } catch (error) {
+            console.error("Staff route error:", error); 
+            res.status(500).json({ message: "Internal server error: Failed to fetch staff list." });
+        }
+    };
 }
 
 module.exports = EventParticipantController;

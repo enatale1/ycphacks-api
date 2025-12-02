@@ -80,7 +80,7 @@ HackCategory.belongsTo(Event, {
 });
 
 Team.hasMany(EventParticipant, { foreignKey: 'teamId' });
-EventParticipant.belongsTo(Team, { foreignKey: 'teamId' });
+EventParticipant.belongsTo(Team, { foreignKey: 'teamId', as: 'EventParticipants' });
 
 EventParticipant.belongsTo(User, { foreignKey: 'userId', as: 'userDetails' });
 User.hasMany(EventParticipant, { foreignKey: 'userId', as:'participant' });

@@ -1,4 +1,4 @@
-const { User } = require('../config/Models');  // Adjust the path based on your folder structure
+const { EventParticipant, User } = require('../config/Models');  // Adjust the path based on your folder structure
 const EventParticipantRepo = require('../team/EventParticipantRepo');
 
 const UserRepo = {
@@ -62,6 +62,39 @@ const UserRepo = {
 
         // Return true if a banned record is found
         return !!bannedUser; 
+    },
+    async getStaffForEvent(eventId) {
+        try {
+            const staffUsers = await User.findAll({
+                // Find users who are marked as 'staff'
+                where: {
+                    role: 'staff'
+                },
+                // Include EventParticipant data and filter by eventId
+                include: [{
+                    model: EventParticipant,
+                    as: 'participant',
+                    required: true,
+                    where: {
+                        eventId: eventId
+                    },
+                    attributes: []
+                }],
+                attributes: [
+                    'id',
+                    'firstName',
+                    'lastName'
+                ],
+                order: [
+                    ['lastName', 'ASC']
+                ]
+            });
+
+            return staffUsers;
+        } catch (error) {
+            console.error("Error fetching staff for event:", error);
+            throw new Error('Failed to retrieve staff list.');
+        }
     }
 };
 

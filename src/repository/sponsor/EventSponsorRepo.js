@@ -132,12 +132,12 @@ class EventSponsorRepo {
       tier.lowerThreshold = Number(updates.lowerThreshold); 
     }
 
-    if ('width' in updates && updates.width !== null && updates.width !== undefined) {
-        tier.width = Number(updates.width); 
+    if ('imageWidth' in updates && updates.imageWidth !== null && updates.imageWidth !== undefined) {
+        tier.width = Number(updates.imageWidth); 
     }
 
-    if ('height' in updates && updates.height !== null && updates.height !== undefined) {
-        tier.height = Number(updates.height);
+    if ('imageHeight' in updates && updates.imageHeight !== null && updates.imageHeight !== undefined) {
+        tier.height = Number(updates.imageHeight);
     }
 
     await tier.save();

@@ -5,7 +5,7 @@ const TeamController = require('../controllers/TeamController');
 const EventParticipantController = require('../controllers/EventParticipantsController');
 
 router.post('/create', TeamController.createTeam);
-router.get('/all', TeamController.getAllTeams);
+router.get('/all', EventParticipantController.getTeamsByEvent);
 router.get('/unassignedParticipants', EventParticipantController.getUnassignedParticipants);
 router.put('/unassign', EventParticipantController.unassignParticipant);
 router.put('/:id', TeamController.updateTeam);

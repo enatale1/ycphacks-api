@@ -8,6 +8,7 @@ const {
     authWithToken,
     getAllUsers, updateCheckIn, updateUserById
 } = require('../controllers/UserController')
+const EventParticipantController= require('../controllers/EventParticipantsController')
 
 router.post('/register', createUser)
 
@@ -17,7 +18,9 @@ router.post('/admin-login', loginAdminUser);
 
 router.post('/auth', authWithToken)
 
-router.get('/all', getAllUsers)
+router.get('/all', EventParticipantController.getUsersByEvent)
+
+router.get('/event/:eventId/staff', EventParticipantController.getStaffForEvent);
 
 router.put('/:id/checkin', updateCheckIn);
 

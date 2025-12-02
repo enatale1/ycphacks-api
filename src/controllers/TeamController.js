@@ -77,8 +77,8 @@ class TeamController {
                 const participants = await EventParticipantsRepo.findParticipantsByTeamId(teamId);
 
                 const formattedParticipants = participants.map(p => ({
-                    id: p.userDetails.id,
-                    name: `${p.userDetails.firstName} ${p.userDetails.lastName}`
+                    id: p.participants.id,
+                    name: `${p.participants.firstName} ${p.participants.lastName}`
                 }));
                 
                 return {

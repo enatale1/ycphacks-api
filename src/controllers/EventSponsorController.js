@@ -1,5 +1,6 @@
 const EventSponsorRepo = require("../repository/sponsor/EventSponsorRepo");
 const SponsorRepo = require("../repository/sponsor/SponsorRepo");
+const EventRepo = require("../repository/event/EventRepo");
 const ImageRepo = require("../repository/image/ImageRepo");
 
 const setDefaultImageDimensions = (tierName) => {
@@ -21,8 +22,15 @@ class EventSponsorController {
 //    Get all sponsors for a specific event
     static async getEventSponsors(req, res) {
       try {
-        const { eventId } = req.query;
-        if (!eventId) return res.status(400).json({ error: "eventId required" });
+        let { eventId } = req.query;
+        if (!eventId){
+            const activeEvent = await EventRepo.findActiveEvent();
+
+            if(!activeEvent){
+                return res.status(404).json({ error: "No eventId provided and no active event found." });
+            }
+            eventId = activeEvent.event.id;
+        }
 
         const sponsorsRaw = await EventSponsorRepo.getSponsorsByEvent(eventId);
 

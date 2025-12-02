@@ -79,11 +79,11 @@ HackCategory.belongsTo(Event, {
     onDelete: 'CASCADE',
 });
 
-Team.hasMany(EventParticipant, { foreignKey: 'teamId' });
-EventParticipant.belongsTo(Team, { foreignKey: 'teamId' });
+Team.hasMany(EventParticipant, { foreignKey: 'teamId', as: 'EventParticipants' });
+EventParticipant.belongsTo(Team, { foreignKey: 'teamId', as: 'EventParticipants' });
 
-EventParticipant.belongsTo(User, { foreignKey: 'userId', as: 'userDetails' });
-User.hasMany(EventParticipant, { foreignKey: 'userId' });
+EventParticipant.belongsTo(User, { foreignKey: 'userId', as: 'participants', targetKey: 'id' });
+User.hasMany(EventParticipant, { foreignKey: 'userId', as:'participant' });
 
 /* HARDWARE/IMAGE ASSOCIATIONS */
 Hardware.hasMany(HardwareImage, {
@@ -103,7 +103,7 @@ function attachAuditHooks() {
         return;
     }
 
-    const ignored = ['AuditLog', 'User']; // We don't want to audit the audit table itself or include participant actions
+    const ignored = ['AuditLog', 'User', 'EventParticipant']; // We don't want to audit the audit table itself or include participant actions
     const cleanData = (obj) => { // Remove sensitive/unnecessary information like password
         if (!obj) return null;
         const data = obj.toJSON();

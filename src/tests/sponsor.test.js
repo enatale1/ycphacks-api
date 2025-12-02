@@ -230,7 +230,7 @@ describe('Event Sponsor Routes', () => {
             id: mockSponsorWithEventInfo.id,
             name: mockSponsorWithEventInfo.sponsorName,
             website: mockSponsorWithEventInfo.sponsorWebsite,
-            image: mockSponsorWithEventInfo.sponsorImageId || "",
+            imageUrl: "",
             sponsorTierId: mockSponsorWithEventInfo.EventSponsors[0].sponsorTierId,
         };
 

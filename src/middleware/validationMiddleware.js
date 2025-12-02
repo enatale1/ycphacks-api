@@ -1,8 +1,12 @@
 const checkBodyForSpecialCharacters = (req, res, next) => {
+    // Fields we want to skip
+    const ignoreFields = ["imageUrl"];
+
     // Blocks characters often used in attacks ($, %, #, <, >, etc.)
     const specialCharRegex = /[^a-zA-Z0-9\s-',\.:/\?&_=()@]/g
 
     for (const key in req.body) {
+        if (ignoreFields.includes(key)) continue; // Skip validation for fields we don't want to check
         const value = req.body[key];
 
         // Only check string values

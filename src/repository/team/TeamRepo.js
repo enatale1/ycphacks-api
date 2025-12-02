@@ -1,4 +1,4 @@
-const { Team } = require('../config/Models');
+const { EventParticipant, User, Team } = require('../config/Models');
 
 const TeamRepo = {
     // Method to create a new Team
@@ -32,7 +32,7 @@ const TeamRepo = {
         return rowsUpdated;
     },
     async delete(teamId){
-        return Team.destroy({where: {id: teamId}});
+        return Team.destroy({where: {id: teamId}}); 
     },
     async findProjectDetailsById(teamId) {
         try {
@@ -73,6 +73,35 @@ const TeamRepo = {
             console.error('Repo error updating project details:', error);
             throw error;
         }
+    },
+    async getTeamsByEvent(eventId) {
+        return await Team.findAll({
+            where: {
+                eventId: eventId
+            },
+            include: [
+                {
+                    model: EventParticipant,
+                    as: 'EventParticipants',
+                    attributes: ['userId', 'teamId'],
+                    include: [{
+                        model: User,
+                        as: 'participants',
+                        attributes: ['id', 'firstName', 'lastName'],
+                        required: true
+                    }]
+                }
+            ],
+            // Select the specific fields needed for the response mapping
+            attributes: [
+                'id', 
+                'teamName', 
+                'presentationLink', 
+                'githubLink', 
+                'projectName', 
+                'projectDescription'
+            ],
+        });
     }
 }
 

@@ -26,6 +26,19 @@ const createUser = async (req, res) => {
             return res.status(400).json({ message: 'Missing eventId in request body.' });
         }
 
+        const isBanned = await UserRepo.checkIfBanned({
+            firstName: userData.firstName,
+            lastName: userData.lastName,
+            email: userData.email
+        });
+
+        if (isBanned) {
+            return res.status(403).json({
+                message: 'Registration declined: This user has been banned from previous events.',
+                errors: { general: 'User is ineligible to register.' }
+            });
+        }
+
         const hashedPassword = await bcrypt.hash(userData.password, SALT_ROUNDS);
         const user = new User(
             userData.firstName,

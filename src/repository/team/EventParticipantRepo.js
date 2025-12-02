@@ -1,6 +1,4 @@
-const EventParticipantModel = require('../../models/EventParticipant');
-const UserModel = require('../../models/User');
-const {EventParticipant, User} = require('../config/Models');
+const {EventParticipant, User, Team} = require('../config/Models');
 const { Op } = require('sequelize');
 
 class EventParticipantRepo {
@@ -33,6 +31,33 @@ class EventParticipantRepo {
         });
 
         return participant;
+    }
+    static async getUsersByEvent(eventId) {
+        // List all attributes needed by the controller (from the User model)
+        const userAttributes = [
+            'id', 'firstName', 'lastName', 'age', 'email', 'phoneNumber', 
+            'school', 'tShirtSize', 'dietaryRestrictions', 'role', 
+            'checkIn', 'isBanned'
+        ];
+
+        try {
+            const users = await User.findAll({
+                attributes: userAttributes, 
+                include: [{
+                    model: EventParticipant,
+                    as: 'participant',
+                    where: { eventId: eventId },
+                    required: true,
+                    attributes: []
+                }],
+                order: [['lastName', 'ASC'], ['firstName', 'ASC']],
+                raw: false
+            });
+            return users;
+
+        } catch (error) {
+            throw error; 
+        }
     }
     static async findUnassignedParticipants(eventId) {
         return EventParticipant.findAll({
@@ -113,6 +138,18 @@ class EventParticipantRepo {
         }
 
         return true;
+    }
+    static async addParticipant(userId, eventId){
+        const existing = await EventParticipant.findOne({where: {userId, eventId}});
+        if(existing){
+            throw new Error('Participant is already registered for this event (duplicate).');
+        }
+
+        return await EventParticipant.create({
+            userId: userId,
+            eventId: eventId,
+            teamId: null
+        });
     }
 }
 

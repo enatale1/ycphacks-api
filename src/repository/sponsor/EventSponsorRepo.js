@@ -12,7 +12,7 @@ class EventSponsorRepo {
           {
             model: EventSponsor,
             where: { eventId },
-            required: false, // LEFT JOIN so sponsors without an EventSponsor row are included
+            required: true,
             include: [
               {
                 model: SponsorTier,

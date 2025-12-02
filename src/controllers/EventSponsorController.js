@@ -1,5 +1,6 @@
 const EventSponsorRepo = require("../repository/sponsor/EventSponsorRepo");
 const SponsorRepo = require("../repository/sponsor/SponsorRepo");
+const EventRepo = require("../repository/event/EventRepo");
 
 const setDefaultImageDimensions = (tierName) => {
     switch (tierName.toLowerCase()) {
@@ -20,8 +21,15 @@ class EventSponsorController {
 //    Get all sponsors for a specific event
     static async getEventSponsors(req, res) {
       try {
-        const { eventId } = req.query;
-        if (!eventId) return res.status(400).json({ error: "eventId required" });
+        let { eventId } = req.query;
+        if (!eventId){
+            const activeEvent = await EventRepo.findActiveEvent();
+
+            if(!activeEvent){
+                return res.status(404).json({ error: "No eventId provided and no active event found." });
+            }
+            eventId = activeEvent.event.id;
+        }
 
         const sponsorsRaw = await EventSponsorRepo.getSponsorsByEvent(eventId);
 
@@ -48,31 +56,6 @@ class EventSponsorController {
         res.json({sponsors, tiers});
       } catch (err) {
         console.error("EventSponsor fetch error:", err);
-        return res.status(500).json({ error: err.message });
-      }
-    }
-
-    static async getSponsorsByEvent(req, res){
-      try{
-        const eventId = req.params.eventId;
-        const sponsorsRaw = await EventSponsorRepo.getSponsorsByEvent(eventId); 
-
-        if(!sponsorsRaw) return res.json([]);
-
-        const sponsors = sponsorsRaw.map(s => {
-          const eventSponsor = s.EventSponsors?.[0];
-          return {
-            id: s.id,
-            name: s.sponsorName,
-            website: s.sponsorWebsite,
-            image: s.sponsorImageId || "",
-            sponsorTierId: eventSponsor?.sponsorTierId
-          };
-        });
-
-        return res.json(sponsors);
-      }catch(err){
-        console.error("Error in getSponsorsByEvent: ", err);
         return res.status(500).json({ error: err.message });
       }
     }

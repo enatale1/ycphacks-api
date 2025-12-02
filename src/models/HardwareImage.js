@@ -4,9 +4,9 @@ class HardwareImage {
         imageUrl,
         hardwareId
     ) {
-        this.id = id;
-        this.imageUrl = imageUrl;
-        this.hardwareId = hardwareId;
+        this.id = id
+        this.imageUrl = imageUrl
+        this.hardwareId = hardwareId
     }
 }
 

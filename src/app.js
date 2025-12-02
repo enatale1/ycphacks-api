@@ -9,6 +9,9 @@ const eventRoutes = require('./routes/EventRoutes');
 const hardwareRoutes = require('./routes/HardwareRoutes');
 const sponsorRoutes = require('./routes/SponsorRoutes');
 const teamRoutes = require('./routes/TeamRoutes');
+
+const uploadRoutes = require('./routes/UploadRoutes');
+
 const auditLogRoutes = require('./routes/AuditLogRoutes');
 const app = express();
 const { authMiddleware } = require('./util/JWTUtil');
@@ -32,7 +35,9 @@ app.use('/teams', teamRoutes);
 app.use('/audit-logs', auditLogRoutes);
 // Sponsor Routes
 app.use('/sponsors', sponsorRoutes);
-app.use('/api/eventsponsors', sponsorRoutes); 
+app.use('/api/eventsponsors', sponsorRoutes);
+
+app.use("/api", uploadRoutes);
 
 // Test route
 app.get('/test', (req, res) => {

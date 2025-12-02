@@ -85,6 +85,12 @@ EventParticipant.belongsTo(Team, { foreignKey: 'teamId' });
 EventParticipant.belongsTo(User, { foreignKey: 'userId', as: 'participants', targetKey: 'id' });
 User.hasMany(EventParticipant, { foreignKey: 'userId' });
 
+/* HARDWARE/IMAGE ASSOCIATIONS */
+Hardware.hasMany(HardwareImage, {
+    foreignKey: 'hardwareId',
+    as: 'images'
+});
+HardwareImage.belongsTo(Hardware, { foreignKey: 'hardwareId' });
 // Function to attach model hooks
 function attachAuditHooks() {
     const { AuditLog } = sequelize.models; // Grab all the models
@@ -93,7 +99,7 @@ function attachAuditHooks() {
         return;
     }
 
-    const ignored = ['AuditLog', 'User']; // We don't want to audit the audit table itself or include participant actions
+    const ignored = ['AuditLog', 'User', 'EventParticipant']; // We don't want to audit the audit table itself or include participant actions
     const cleanData = (obj) => { // Remove sensitive/unnecessary information like password
         if (!obj) return null;
         const data = obj.toJSON();
@@ -163,3 +169,4 @@ module.exports = {
     HardwareImage,
     AuditLog
 };
+

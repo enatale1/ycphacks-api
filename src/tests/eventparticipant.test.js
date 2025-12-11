@@ -23,13 +23,13 @@ const mockResponse = () => {
 const createMockParticipant = (userId, teamId, isBanned = false, checkIn = true) => ({
     userId: userId,
     teamId: teamId,
-    userDetails: { 
+    participants: { 
         id: userId,
         firstName: `User${userId}`, 
         lastName: 'Test', 
         email: `user${userId}@test.com`,
         checkIn: checkIn,
-        isBanned: isBanned,
+        isBanned: isBanned
     },
 });
 

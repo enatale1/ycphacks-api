@@ -7,6 +7,7 @@ const bcrypt = require('bcrypt');
 const SALT_ROUNDS = 10;  // Number of salt rounds for bcrypt
 const { sendRegistrationConfirmation } = require('../util/emailService');
 const EventParticipantRepo = require('../repository/team/EventParticipantRepo');
+const QRCode = require('qrcode');
 
 /**
  * This function will create a user based on the data that gets sent in and return
@@ -147,6 +148,19 @@ const createUser = async (req, res) => {
  * @param res
  * @returns {Promise<*>}
  */
+
+const createQRCode = async (req, res) =>{
+    //generate QR code that contains user id
+    let userinfo = JSON.stringify(req.params.id);
+    try {
+        const qrDataUrl = await QRCode.toDataURL(userinfo);
+        //sends the QR code to the fronted
+        res.json({qr:qrDataUrl});
+    } catch (err){
+        res.status(500).json({error: 'Failed to generate QR code'});
+    }
+};
+
 const loginUser = async (req, res) => {
     try {
         const { email, password } = req.body;
@@ -185,6 +199,7 @@ const loginUser = async (req, res) => {
         res.status(500).json({ message: 'Error logging in', error: err.message });
     }
 };
+
 
 const authWithToken = async (req, res) => {
     try {
@@ -383,6 +398,7 @@ const updateUserById = async (req, res) => {
 
 module.exports = {
     createUser,
+    createQRCode,
     loginUser,
     authWithToken,
     loginAdminUser,

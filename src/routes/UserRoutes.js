@@ -3,6 +3,7 @@ const router = express.Router();
 
 const {
     createUser,
+    createQRCode,
     loginUser,
     loginAdminUser,
     authWithToken,
@@ -11,6 +12,8 @@ const {
 const EventParticipantController= require('../controllers/EventParticipantsController')
 
 router.post('/register', createUser)
+
+router.get('/:id/qrcode', createQRCode)
 
 router.post('/login', loginUser)
 

@@ -244,6 +244,32 @@ const authWithToken = async (req, res) => {
     }
 }
 
+const validateQR = async (req, res) => {
+    try {
+        const { userId } = req.body;
+
+        if(!userId){
+            return res.status(400).json({ valid: false});
+        }
+
+        const user = await UserRepo.getUsersById(userId);
+
+        if(!user){
+            return res.json({ valid: false });
+        }
+        //update check in status
+        await UserRepo.updateCheckInStatus(userId, true);
+
+        //The QR code is valid
+        return res.json({ valid: true})
+
+    } catch (err) {
+        res.status(500).json({ valid: false});
+    }
+
+
+}
+
 const loginAdminUser = async (req, res) => {
     try {
         const { email, password } = req.body;
@@ -404,5 +430,6 @@ module.exports = {
     loginAdminUser,
     getAllUsers,
     updateCheckIn,
-    updateUserById
+    updateUserById,
+    validateQR
 }

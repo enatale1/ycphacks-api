@@ -7,9 +7,11 @@ const {
     loginUser,
     loginAdminUser,
     authWithToken,
-    getAllUsers, updateCheckIn, updateUserById
+    getAllUsers, updateCheckIn, updateUserById, validateQR
 } = require('../controllers/UserController')
 const EventParticipantController= require('../controllers/EventParticipantsController')
+
+router.post('/validate-qr', validateQR);
 
 router.post('/register', createUser)
 

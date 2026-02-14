@@ -260,8 +260,11 @@ const validateQR = async (req, res) => {
         //update check in status
         await UserRepo.updateCheckInStatus(userId, true);
 
-        //The QR code is valid
-        return res.json({ valid: true})
+        //fetch the updated user
+        const updatedUser = await UserRepo.getUsersById(userId);
+
+        //The QR code is valid, return that this is true and the updatedUser
+        return res.json({ valid: true, user: updatedUser});
 
     } catch (err) {
         res.status(500).json({ valid: false});

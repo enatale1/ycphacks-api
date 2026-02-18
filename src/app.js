@@ -50,15 +50,17 @@ async function startServer() {
   try {
     if (process.env.NODE_ENV !== 'test') {
       // Sync only in non-test environments
-      await sequelize.sync({ alter: true });
+      //This line of code shouldn't be needed anymore since migrations are being used
+      //await sequelize.sync({ alter: true });
+      await sequelize.authenticate();
       attachAuditHooks();
-      console.log('✅ Database synchronized successfully.');
+      console.log('✅ Database authenticated successfully.');
     }
     app.listen(port, () => {
       console.log(`Server running at http://localhost:${port}`);
     });
   } catch (err) {
-    console.error('❌ Error syncing the database:', err);
+    console.error('❌ Error authenticating the database:', err);
     process.exit(1); // optional: stop server if DB fails
   }
 }

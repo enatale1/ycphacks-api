@@ -1,15 +1,10 @@
 const Event = require("./Event")
-const HackCategories = require("./HackCategory")
 const Activity = require("./Activity");
 
 
 const EventRepo = {
     async createEvent(event) {
         return Event.create(event)
-    },
-
-    async updateEvent(event) {
-        return Event.update({ ...event }, { where: { id: event.id }, individualHooks: true })
     },
 
     async findEventById(eventId) {

@@ -1,4 +1,4 @@
-class HackCategory {
+class EventCategory {
     constructor(
         id,
         categoryName,
@@ -10,4 +10,4 @@ class HackCategory {
     }
 }
 
-module.exports = HackCategory
+module.exports = EventCategory

@@ -433,71 +433,6 @@ const deleteActivity = async (req, res) => {
     }
 }
 
-const createCategory = async (req, res) => {
-    try {
-
-        const category = {
-            categoryName: req.body.categoryName,
-            eventId: req.body.eventId
-        }
-
-        const createdCategory = await EventRepo.createCategory(category)
-
-        if (!createdCategory) {
-            return res.status(404).json({
-                message: 'Event not found'
-            });
-        } else {
-            return res.status(201).json({
-                message: 'Category created successfully',
-                activity: createdCategory
-            });
-        }
-    } catch (e) {
-        console.log(e)
-        return res.status(500).json({
-            message: e
-        });
-    }
-}
-const getCategoriesForEvent = async (req, res) => {
-
-    const { id } = req.params;
-
-    try {
-        const categories = await EventRepo.getAllCategories(id)
-        return res.status(200).json({
-            message: 'categories retrieved successfully',
-            categories: categories
-        });
-    } catch (e) {
-        console.error(e);
-        return res.status(500).json({
-            message: 'Internal Server Error'
-        });
-    }
-}
-
-const editCategory = async (req, res) => {
-    try {
-        const category = {
-            id: req.body.id,
-            categoryName: req.body.categoryName,
-            eventId: req.body.eventId
-        }
-
-        const updatedCategory = await EventRepo.updateCategory(category)
-        return res.status(200).json({
-            message: 'categories updated successfully',
-        });
-    } catch (e) {
-        console.error(e);
-        return res.status(500).json({
-            message: 'Internal Server Error'
-        });
-    }
-}
-
 const updateEvent = async (req, res) => {
     try {
         const event = {
@@ -529,9 +464,6 @@ module.exports = {
     deleteEvent,
     createActivity,
     getActivitiesForEvent,
-    createCategory,
-    getCategoriesForEvent,
-    editCategory,
     editActivity,
     updateEvent,
     deleteActivity

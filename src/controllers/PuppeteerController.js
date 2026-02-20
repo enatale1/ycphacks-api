@@ -1,6 +1,6 @@
 const puppeteer = require("puppeteer")
 const TeamRepo = require("../repository/team/TeamRepo")
-const EventParticipantsRepo = require("../repository/Team/EventParticipantRepo")
+const EventParticipantsRepo = require("../repository/team/EventParticipantRepo")
 class PuppeteerController {
     static async createPDF(req, res) {
             const {eventId} = req.params;

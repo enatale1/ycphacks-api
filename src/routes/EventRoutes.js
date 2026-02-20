@@ -10,9 +10,6 @@ const {
     deleteEvent,
     createActivity,
     getActivitiesForEvent,
-    createCategory,
-    getCategoriesForEvent,
-    editCategory,
     editActivity,
     updateEvent,
     deleteActivity
@@ -27,9 +24,6 @@ router.delete('/delete/:id', deleteEvent)
 router.post('/activity/', createActivity)
 router.get('/activity/:id', getActivitiesForEvent)
 router.delete('/activity/:id', deleteActivity)
-router.post('/category/', createCategory)
-router.get('/category/:id', getCategoriesForEvent)
-router.put('/category', editCategory)
 router.put('/activity', editActivity)
 router.put('/update', updateEvent)
 

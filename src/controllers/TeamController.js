@@ -96,6 +96,9 @@ class TeamController {
             const teamData = await Promise.all(teamDataPromises);
 
             res.status(200).json({ message: 'Successfully fetched all teams', data: teamData });
+
+            return teamData;
+
         }catch(err){
             console.error("Backend Error in getAllTeams:", err);
             res.status(500).json({ message: 'Error getting all teams', error:err.message });

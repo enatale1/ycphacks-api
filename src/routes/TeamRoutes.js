@@ -13,5 +13,4 @@ router.delete('/:id', TeamController.deleteTeam);
 router.get('/:userId/team', EventParticipantController.getUserTeamStatus);
 router.get('/:teamId/project-details', TeamController.getTeamProjectDetails);
 router.put('/:teamId/project-details', TeamController.updateTeamProjectDetails);
-
 module.exports = router;

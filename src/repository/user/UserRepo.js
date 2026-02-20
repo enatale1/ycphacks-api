@@ -20,6 +20,12 @@ const UserRepo = {
         return EventParticipantRepo.getUsersByEvent(eventId);
     },
 
+    async getUsersById(userId){
+        return await User.findOne({
+            where: { id: userId }
+        })
+    },
+
     async updateCheckInStatus(userId, checkInStatus){
         const user = await User.findByPk(userId);
 

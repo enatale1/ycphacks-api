@@ -7,6 +7,7 @@ const bcrypt = require('bcrypt');
 const SALT_ROUNDS = 10;  // Number of salt rounds for bcrypt
 const { sendRegistrationConfirmation } = require('../util/emailService');
 const EventParticipantRepo = require('../repository/team/EventParticipantRepo');
+const QRCode = require('qrcode');
 
 /**
  * This function will create a user based on the data that gets sent in and return
@@ -147,6 +148,19 @@ const createUser = async (req, res) => {
  * @param res
  * @returns {Promise<*>}
  */
+
+const createQRCode = async (req, res) =>{
+    //generate QR code that contains user id
+    let userinfo = JSON.stringify(req.params.id);
+    try {
+        const qrDataUrl = await QRCode.toDataURL(userinfo);
+        //sends the QR code to the fronted
+        res.json({qr:qrDataUrl});
+    } catch (err){
+        res.status(500).json({error: 'Failed to generate QR code'});
+    }
+};
+
 const loginUser = async (req, res) => {
     try {
         const { email, password } = req.body;
@@ -185,6 +199,7 @@ const loginUser = async (req, res) => {
         res.status(500).json({ message: 'Error logging in', error: err.message });
     }
 };
+
 
 const authWithToken = async (req, res) => {
     try {
@@ -227,6 +242,35 @@ const authWithToken = async (req, res) => {
     } catch (err) {
         res.status(500).json({ message: 'Error validating token', error: err.message });
     }
+}
+
+const validateQR = async (req, res) => {
+    try {
+        const { userId } = req.body;
+
+        if(!userId){
+            return res.status(400).json({ valid: false});
+        }
+
+        const user = await UserRepo.getUsersById(userId);
+
+        if(!user){
+            return res.json({ valid: false });
+        }
+        //update check in status
+        await UserRepo.updateCheckInStatus(userId, true);
+
+        //fetch the updated user
+        const updatedUser = await UserRepo.getUsersById(userId);
+
+        //The QR code is valid, return that this is true and the updatedUser
+        return res.json({ valid: true, user: updatedUser});
+
+    } catch (err) {
+        res.status(500).json({ valid: false});
+    }
+
+
 }
 
 const loginAdminUser = async (req, res) => {
@@ -383,10 +427,12 @@ const updateUserById = async (req, res) => {
 
 module.exports = {
     createUser,
+    createQRCode,
     loginUser,
     authWithToken,
     loginAdminUser,
     getAllUsers,
     updateCheckIn,
-    updateUserById
+    updateUserById,
+    validateQR
 }

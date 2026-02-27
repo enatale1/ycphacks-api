@@ -1,86 +1,88 @@
-const EventCategoryRepo = require("../repository/event/EventCategoryRepo");
-const EventCategory = require('../models/EventCategory');
+const PrizeRepo = require("../repository/prize/PrizeRepo");
+const Prize = require('../models/Prize');
 
-const createCategory = async (req, res) => {
+const createPrize = async (req, res) => {
     try {
-        const categoryData = req.body;
+        const prizeData = req.body;
 
-        const category = new EventCategory(
+        const prize = new Prize(
             null,
-            categoryData.categoryName,
-            categoryData.eventId
+            prizeData.eventId,
+            prizeData.prizeName,
+            prizeData.categoryId,
+            prizeData.placement,
+            prizeData.handedOut
         );
 
-        const createdCategory = await EventCategoryRepo.createCategory(category)
+        const createdPrize = await PrizeRepo.createPrize(prize)
+        console.log(createdPrize)
 
-        if (!createdCategory) {
+        if (!createdPrize) {
             return res.status(404).json({
                 message: 'Event not found'
             });
         } else {
             return res.status(201).json({
-                message: 'Category created successfully',
-                category: createdCategory
+                message: 'Prize created successfully',
+                prize: createdPrize
             });
         }
     } catch (e) {
-        console.log(e)
         return res.status(500).json({
             message: e
         });
     }
 }
 
-const getCategoriesForEvent = async (req, res) => {
+const getPrizesForEvent = async (req, res) => {
 
     let { eventId } = req.params;
 
     try {
         eventId = Number(eventId);
 
-        const categories = await EventCategoryRepo.getCategoriesByEventId(eventId)
-        return res.status(200).json({
-            message: 'Categories from event retrieved successfully',
-            categories: categories
+        const prizes = await PrizeRepo.getPrizesByEventId(eventId)
+
+        return res.status(201).json({
+            message: 'Prizes from event retrieved successfully',
+            prizes: prizes
         });
     } catch (e) {
-        console.error(e);
         return res.status(500).json({
             message: 'Internal Server Error'
         });
     }
 }
 
-const getCategoryById = async (req, res) => {
+const getPrizeById = async (req, res) => {
 
     const { id } = req.params;
 
     try {
-        const categories = await EventCategoryRepo.getCategoryById(id)
+        const prize = await PrizeRepo.getPrizeById(id)
         return res.status(200).json({
-            message: 'Category with id retrieved successfully',
-            categories: categories
+            message: 'Prize with id retrieved successfully',
+            prize: prize
         });
     } catch (e) {
-        console.error(e);
         return res.status(500).json({
             message: 'Internal Server Error'
         });
     }
 }
 
-const editCategory = async (req, res) => {
+const editPrize = async (req, res) => {
     try {
-        const category = {
+        const prize = {
             id: req.body.id,
-            categoryName: req.body.categoryName,
+            prizeName: req.body.prizeName,
             eventId: req.body.eventId
         }
 
-        const updatedCategory = await EventCategoryRepo.updateCategory(category)
+        const updatedPrize = await PrizeRepo.updatePrize(prize)
 
         // not sure if this is 400, but regardless find out eventually
-        if (!updatedCategory) {
+        if (!updatedPrize) {
             return res.status(400).json({
                 message: 'Categories updated unsuccessfully'
             })
@@ -88,24 +90,24 @@ const editCategory = async (req, res) => {
 
         return res.status(200).json({
             message: 'Categories updated successfully',
+            updatedPrize: updatedPrize
         });
 
     } catch (e) {
-        console.error(e);
         return res.status(500).json({
             message: 'Internal Server Error'
         });
     }
 }
 
-const deleteCategory = async (req, res) => {
+const deletePrize = async (req, res) => {
     try {
         let { id } = req.params;
 
         // Check that the category id was provided
         if (!id) {
             return res.status(400).json({
-                message: 'Category ID is required'
+                message: 'Prize ID is required'
             });
         }
 
@@ -114,25 +116,25 @@ const deleteCategory = async (req, res) => {
         }
         catch (e) {
             return res.status(400).json({
-                message: 'Category ID must be a number'
+                message: 'Prize ID must be a number'
             })
         }
 
         // Check if the category exists
-        const existingCategory = await EventCategoryRepo.getCategoryById(id);
-        if (!existingCategory) {
+        const existingPrize = await PrizeRepo.getPrizeById(id);
+        if (!existingPrize) {
             return res.status(404).json({
                 message: 'Category not found'
             });
         }
 
         // Delete category
-        const rowsDeleted = await EventCategoryRepo.deleteCategory(id);
+        const rowsDeleted = await PrizeRepo.deletePrize(id);
 
         // Check to make sure the category was deleted
         if (rowsDeleted <= 0) {
             return res.status(404).json({
-                message: 'Category could not be deleted (not found or already removed)'
+                message: 'Prize could not be deleted (not found or already removed)'
             });
         }
 
@@ -149,9 +151,9 @@ const deleteCategory = async (req, res) => {
 }
 
 module.exports = {
-    createCategory,
-    getCategoriesForEvent,
-    getCategoryById,
-    editCategory,
-    deleteCategory
+    createPrize,
+    getPrizesForEvent,
+    getPrizeById,
+    editPrize,
+    deletePrize
 }

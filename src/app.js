@@ -6,7 +6,8 @@ const { sequelize } = require('./repository/config/index'); // <-- destructure t
 const { attachAuditHooks } = require('./repository/config/Models');
 const userRoutes = require('./routes/UserRoutes');
 const eventRoutes = require('./routes/EventRoutes');
-const categoryRoutes = require('./routes/EventCategoryRoutes');
+const categoryRoutes = require('./routes/HackCategoryRoutes');
+const prizeRoutes = require('./routes/PrizeRoutes');
 const hardwareRoutes = require('./routes/HardwareRoutes');
 const sponsorRoutes = require('./routes/SponsorRoutes');
 const teamRoutes = require('./routes/TeamRoutes');
@@ -33,6 +34,7 @@ app.use(express.json());
 app.use('/user', userRoutes)
 app.use('/event', eventRoutes)
 app.use('/category', categoryRoutes);
+app.use('/prize', prizeRoutes);
 app.use('/hardware', hardwareRoutes)
 app.use('/teams', teamRoutes);
 app.use('/audit-logs', auditLogRoutes);

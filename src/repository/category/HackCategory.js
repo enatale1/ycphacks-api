@@ -1,7 +1,7 @@
 const { DataTypes } = require('sequelize');
 const { sequelize } = require('../config');
 
-const EventCategory = sequelize.define(
+const HackCategory = sequelize.define(
     'HackCategory',
     {
         id: {
@@ -27,4 +27,4 @@ const EventCategory = sequelize.define(
     }
 );
 
-module.exports = EventCategory;
+module.exports = HackCategory;

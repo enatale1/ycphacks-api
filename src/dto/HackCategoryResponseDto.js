@@ -1,4 +1,4 @@
-class CategoryResponseDto {
+class HackCategoryResponseDto {
     constructor(
         id,
         categoryName,
@@ -10,4 +10,4 @@ class CategoryResponseDto {
     }
 }
 
-module.exports = CategoryResponseDto;
+module.exports = HackCategoryResponseDto;

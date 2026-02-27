@@ -10,8 +10,8 @@ const EventSponsor = require('../sponsor/EventSponsor');
 const Hardware = require('../hardware/Hardware');
 const HardwareImage = require('../hardware/HardwareImage');
 const Team = require('../team/Team');
-const HackCategory = require('../event/EventCategory');
-const Prize = require('../event/Prize');
+const HackCategory = require('../category/HackCategory');
+const Prize = require('../prize/Prize');
 const Analytics = require('../analytics/Analytics');
 const Image = require('../image/Image');
 const Activity = require('../event/Activity');
@@ -77,6 +77,28 @@ Event.hasMany(HackCategory, {
 HackCategory.belongsTo(Event, {
     foreignKey: 'eventId',
     onDelete: 'CASCADE',
+});
+
+// Event <---> Prize
+Event.hasMany(Prize, {
+    foreignKey: 'eventId',
+    onDelete: 'CASCADE',
+});
+Prize.belongsTo(Event, {
+    foreignKey: 'eventId',
+    onDelete: 'CASCADE',
+});
+
+// HackCategory <---> Prize
+HackCategory.hasMany(Prize, {
+    foreignKey: 'categoryId',
+    onDelete: 'CASCADE'
+});
+Prize.belongsTo(HackCategory, {
+    foreignKey: {
+        name: 'categoryId',
+        allowNull: false
+    }
 });
 
 Team.hasMany(EventParticipant, { foreignKey: 'teamId', as: 'EventParticipants' });

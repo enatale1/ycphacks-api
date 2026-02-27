@@ -7,7 +7,7 @@ const {
     getCategoryById,
     editCategory,
     deleteCategory
-} = require('../controllers/EventCategoryController');
+} = require('../controllers/HackCategoryController');
 
 router.post('/create', createCategory)
 router.get('/by-event/:eventId', getCategoriesForEvent)

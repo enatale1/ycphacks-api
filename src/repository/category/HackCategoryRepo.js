@@ -1,24 +1,24 @@
-const EventCategory = require("./EventCategory")
+const HackCategory = require("./HackCategory")
 
 
-const EventCategoryRepo = {
+const HackCategoryRepo = {
     async createCategory(category) {
-        return EventCategory.create({
+        return HackCategory.create({
             ...category
         });
     },
     async getCategoryById(id) {
-        return EventCategory.findOne({
+        return HackCategory.findOne({
             where: { id: id }
         });
     },
     async getCategoriesByEventId(eventId) {
-        return EventCategory.findAll({
+        return HackCategory.findAll({
             where: { eventId: eventId }
         });
     },
     async updateCategory(category) {
-        return EventCategory.update(
+        return HackCategory.update(
             {...category},
             {
                 where: { id: category.id },
@@ -27,7 +27,7 @@ const EventCategoryRepo = {
         );
     },
     async deleteCategory(id) {
-        return EventCategory.destroy(
+        return HackCategory.destroy(
     {
                 where: { id: id },
                 individualHooks: true }
@@ -35,4 +35,4 @@ const EventCategoryRepo = {
     },
 }
 
-module.exports = EventCategoryRepo;
+module.exports = HackCategoryRepo;

@@ -33,7 +33,7 @@ module.exports = {
       updatedAt: { type: Sequelize.DATE, allowNull: false },
     });
 
-    // 2. Event
+    // 2A. Event
     await queryInterface.createTable('Event', {
       id: { type: Sequelize.INTEGER, allowNull: false, autoIncrement: true, primaryKey: true },
       eventName: { type: Sequelize.STRING(100), allowNull: false },
@@ -43,6 +43,52 @@ module.exports = {
       isActive: { type: Sequelize.BOOLEAN, allowNull: false, defaultValue: false },
       createdAt: { type: Sequelize.DATE, allowNull: false },
       updatedAt: { type: Sequelize.DATE, allowNull: false },
+    });
+
+    // 2B. Activity
+    await queryInterface.createTable('Activity', {
+      id: {
+          type: Sequelize.INTEGER,
+          autoIncrement: true,
+          primaryKey: true,
+          allowNull: false
+      },
+
+      activityName: {
+          type: Sequelize.STRING,
+          allowNull: false
+      },
+
+      activityDate: {
+          type: Sequelize.DATE,
+          allowNull: false
+      },
+
+      activityDescription: {
+          type: Sequelize.STRING,
+          allowNull: true
+      },
+
+      eventId: {
+          type: Sequelize.INTEGER,
+          allowNull: false,
+          references: {
+              model: 'Event',
+              key: 'id'
+          },
+          onDelete: 'CASCADE',   // delete activities if event deleted
+          onUpdate: 'CASCADE'
+      },
+
+      createdAt: {
+          allowNull: false,
+          type: Sequelize.DATE
+      },
+
+      updatedAt: {
+          allowNull: false,
+          type: Sequelize.DATE
+      }
     });
 
     // 3. Analytics

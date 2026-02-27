@@ -4,13 +4,15 @@ class Prize {
         eventId,
         prizeName,
         categoryId,
-        placement
+        placement,
+        handedOut
     ) {
         this.id = id;
         this.eventId = eventId;
         this.prizeName = prizeName;
         this.categoryId = categoryId;
         this.placement = placement;
+        this.handedOut = handedOut;
     }
 }
 

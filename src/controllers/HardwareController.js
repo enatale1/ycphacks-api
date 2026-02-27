@@ -71,6 +71,7 @@ const HardwareController = {
                 status: req.body.status,
                 functional: req.body.functional,
                 description: req.body.description,
+                whoHasId: req.body.whoHasId,
 
                // whoHasID: req.body.whoHasID ? Number(req.body.whoHasID) : null,
             });

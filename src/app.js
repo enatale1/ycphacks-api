@@ -19,6 +19,13 @@ const auditLogRoutes = require('./routes/AuditLogRoutes');
 const app = express();
 const { authMiddleware } = require('./util/JWTUtil');
 
+// Rate limiter imports
+const rateLimit = require('express-rate-limit');
+const { rateLimiterUsingThirdParty } = require('./middleware/rateLimiter');
+
+
+
+
 // CORS configuration
 const corsOptions = {
   origin: process.env.CORS,
@@ -29,6 +36,9 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 app.use(express.json());
+
+// Use rate limiter
+app.use(rateLimiterUsingThirdParty);
 
 // Use your routes
 app.use('/user', userRoutes)

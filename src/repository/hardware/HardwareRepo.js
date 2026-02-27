@@ -27,7 +27,7 @@ const HardwareRepo = {
     async groupHardware() {
         const hardwareList = await Hardware.findAll({
             attributes: [
-                'id', 'hardwareName', 'description', 'serial', 'whoHasId',
+                'id', 'hardwareName', 'description', 'serial', 'whoHasId', 'functional'
             ],
             include: [{
                 model: HardwareImage,
@@ -68,6 +68,7 @@ const HardwareRepo = {
             grouped[groupTitle].items.push({
                 fullName: item.hardwareName,
                 isUnavailable: isUnavailable,
+                isFunctional: item.functional,
                 name: subtitle || groupTitle,
                 subtitle: subtitle,
                 description: item.description || "",
@@ -79,7 +80,7 @@ const HardwareRepo = {
 
     async findAllHardwareAdmin() {
         return Hardware.findAll({
-            attributes: ['id', 'hardwareName', 'serial', 'functional', 'description'],
+            attributes: ['id', 'hardwareName', 'serial', 'functional', 'description', 'whoHasId'],
             include: [{ model: HardwareImage, as: 'images', attributes: ['id', 'imageUrl', 'hardwareId'] }]
         });
     },

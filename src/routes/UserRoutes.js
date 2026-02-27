@@ -10,16 +10,17 @@ const {
     getAllUsers, updateCheckIn, updateUserById, validateQR
 } = require('../controllers/UserController')
 const EventParticipantController= require('../controllers/EventParticipantsController')
+const { checkBodyForSpecialCharacters } = require('../middleware/validationMiddleware')
 
 router.post('/validate-qr', validateQR);
 
-router.post('/register', createUser)
+router.post('/register', checkBodyForSpecialCharacters, createUser)
 
 router.get('/:id/qrcode', createQRCode)
 
-router.post('/login', loginUser)
+router.post('/login', checkBodyForSpecialCharacters, loginUser)
 
-router.post('/admin-login', loginAdminUser);
+router.post('/admin-login', checkBodyForSpecialCharacters, loginAdminUser);
 
 router.post('/auth', authWithToken)
 
@@ -29,6 +30,6 @@ router.get('/event/:eventId/staff', EventParticipantController.getStaffForEvent)
 
 router.put('/:id/checkin', updateCheckIn);
 
-router.put('/:id', updateUserById);
+router.put('/:id', checkBodyForSpecialCharacters, updateUserById);
 
 module.exports = router;

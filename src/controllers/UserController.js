@@ -203,30 +203,15 @@ const loginUser = async (req, res) => {
 
 const authWithToken = async (req, res) => {
     try {
-        const authHeader = req.headers.authorization;
-
-        // Ensure we actually have a string before proceeding
-        if (!authHeader ||  !authHeader.startsWith('Bearer ')) {
-            return res.status(401).json({ message: 'Missing or malformed token' });
-        }
-
-        // Extract the token string
-        const tokenString = authHeader.split(' ')[1];
-        
-        // Validate the token
-        const decodedToken = validateToken(tokenString);
-
-        if (decodedToken.error) {
-            return res.status(401).json({ message: 'Invalid token' });
-        }
-
         // Find the user by email
-        const user = await UserRepo.findByEmail(decodedToken.email);
+        const email = req.user.email;
+        const user = await UserRepo.findByEmail(email);
 
         if (!user) {
-            return res.status(400).json({ message: 'Invalid email or password' });
+            return res.status(404).json({ message: 'User not found' });
         }
 
+        const tokenString = req.headers.authorization.split(' ')[1];
         const userResponseDto = new UserResponseDto(
             user.id,
             user.email,
@@ -242,7 +227,7 @@ const authWithToken = async (req, res) => {
             data: userResponseDto
         });
     } catch (err) {
-        res.status(500).json({ message: 'Error validating token', error: err.message });
+        res.status(500).json({ message: 'Error fetching user profile', error: err.message });
     }
 }
 

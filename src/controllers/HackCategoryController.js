@@ -94,6 +94,7 @@ const editCategory = async (req, res) => {
 
         return res.status(200).json({
             message: 'Categories updated successfully',
+            updatedCategory: updatedCategory
         });
 
     } catch (e) {

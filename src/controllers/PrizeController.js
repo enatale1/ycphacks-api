@@ -75,8 +75,11 @@ const editPrize = async (req, res) => {
     try {
         const prize = {
             id: req.body.id,
+            eventId: req.body.eventId,
             prizeName: req.body.prizeName,
-            eventId: req.body.eventId
+            categoryId: req.body.categoryId,
+            placement: req.body.placement,
+            handedOut: req.body.handedOut
         }
 
         const updatedPrize = await PrizeRepo.updatePrize(prize)
@@ -94,6 +97,7 @@ const editPrize = async (req, res) => {
         });
 
     } catch (e) {
+        console.log(e)
         return res.status(500).json({
             message: 'Internal Server Error'
         });

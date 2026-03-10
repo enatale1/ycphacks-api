@@ -169,13 +169,13 @@ const loginUser = async (req, res) => {
         const user = await UserRepo.findByEmail(email);
 
         if (!user) {
-            return res.status(400).json({ message: 'Invalid email' });
+            return res.status(400).json({ message: 'Invalid email or password' });
         }
 
         // Compare the provided password with the stored hashed password
         const isPasswordValid = await bcrypt.compare(password, user.password);
         if (!isPasswordValid) {
-            return res.status(400).json({ message: 'Invalid password' });
+            return res.status(400).json({ message: 'Invalid email or password' });
         }
 
         // Generate JWT token

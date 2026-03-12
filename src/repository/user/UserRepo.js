@@ -116,6 +116,25 @@ const UserRepo = {
             console.error("Error fetching staff for event:", error);
             throw new Error('Failed to retrieve staff list.');
         }
+    },
+
+    async updatePassword(userId, hashedPassword) {
+        try {
+            const user = await User.findByPk(userId);
+
+            if(!user){
+                const error = new Error(`User with ID ${userId} not found.`);
+                error.status = 404;
+                throw error;
+            }
+
+            user.password = hashedPassword;
+
+            await user.save();
+            return user;
+        } catch(err) {
+            console.error(err);
+        }
     }
 };
 

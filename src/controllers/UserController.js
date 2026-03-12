@@ -5,9 +5,10 @@ const UserResponseDto = require('../dto/UserResponseDto')
 const { generateToken, validateToken} = require('../util/JWTUtil');
 const bcrypt = require('bcrypt');
 const SALT_ROUNDS = 10;  // Number of salt rounds for bcrypt
-const { sendRegistrationConfirmation, generateEmailToken, validateEmailToken, verificationEmail } = require('../util/emailService');
+const { sendRegistrationConfirmation, generateEmailToken, validateEmailToken, validatePasswordToken, verificationEmail, sendPasswordResetEmail, generatePasswordToken } = require('../util/emailService');
 const EventParticipantRepo = require('../repository/team/EventParticipantRepo');
 const QRCode = require('qrcode');
+const userRepo = require("../repository/user/UserRepo");
 
 /**
  * This function will create a user based on the data that gets sent in and return
@@ -442,6 +443,49 @@ const updateEmailVerification = async(req, res) => {
         return res.status(400).send("Invalid or expired verification link");
     }
 }
+const forgotPassword = async (req, res) => {
+    const { email } = req.body;
+
+    const user = await userRepo.findByEmail(email);
+
+    if (!user) {
+        return res.json({
+            message: "Account not found with that email address."
+        });
+    }
+
+    const resetToken = generatePasswordToken({ id: user.id });
+
+    await sendPasswordResetEmail(user.email, resetToken);
+
+    res.json({
+        message: "If an account exists, a reset link has been sent."
+    });
+}
+
+const resetPassword = async(req, res) => {
+    const { token, newPassword } = req.body;
+
+    if (!token || !newPassword) {
+        return res.status(400).json({ error: "Token and password required" });
+    }
+
+    try {
+        const payload = validatePasswordToken(token);
+        console.log(payload);
+        const userId = payload.decoded.id;
+        console.log(userId);
+
+        const hashedPassword = await bcrypt.hash(newPassword, 10);
+        await UserRepo.updatePassword(userId, hashedPassword);
+        return res.json({ message: "Password reset successfully" });
+
+    }
+    catch (err) {
+        console.error(err);
+        return res.status(400).json({error: "Invalid or expired token"});
+    }
+}
 
 module.exports = {
     createUser,
@@ -453,5 +497,7 @@ module.exports = {
     updateCheckIn,
     updateUserById,
     validateQR,
-    updateEmailVerification
+    updateEmailVerification,
+    forgotPassword,
+    resetPassword
 }

@@ -12,6 +12,7 @@ const hardwareRoutes = require('./routes/HardwareRoutes');
 const sponsorRoutes = require('./routes/SponsorRoutes');
 const teamRoutes = require('./routes/TeamRoutes');
 const PuppeteerRoutes = require('./routes/PuppeteerAPIRoutes')
+const EmailRoutes = require('./routes/EmailRoutes')
 
 const uploadRoutes = require('./routes/UploadRoutes');
 
@@ -52,6 +53,7 @@ app.use('/audit-logs', auditLogRoutes);
 app.use('/sponsors', sponsorRoutes);
 app.use('/api/eventsponsors', sponsorRoutes);
 app.use('/puppeteer',PuppeteerRoutes);
+app.use('/verify',EmailRoutes);
 
 app.use("/api", uploadRoutes);
 

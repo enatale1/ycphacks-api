@@ -133,6 +133,10 @@ const User = sequelize.define(
             type: DataTypes.BOOLEAN,
             allowNull: false,
             defaultValue: false
+        },
+        isEmailVerified: {
+            type: DataTypes.BOOLEAN,
+            defaultValue: false
         }
     },
     {

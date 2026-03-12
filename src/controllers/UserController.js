@@ -5,7 +5,7 @@ const UserResponseDto = require('../dto/UserResponseDto')
 const { generateToken, validateToken} = require('../util/JWTUtil');
 const bcrypt = require('bcrypt');
 const SALT_ROUNDS = 10;  // Number of salt rounds for bcrypt
-const { sendRegistrationConfirmation } = require('../util/emailService');
+const { sendRegistrationConfirmation, generateEmailToken, validateEmailToken, verificationEmail } = require('../util/emailService');
 const EventParticipantRepo = require('../repository/team/EventParticipantRepo');
 const QRCode = require('qrcode');
 
@@ -120,7 +120,13 @@ const createUser = async (req, res) => {
         const token = generateToken({ email: user.email });
 
         // Fire off confirmation email
-        await sendRegistrationConfirmation(user.email, user.firstName);
+        //await sendRegistrationConfirmation(user.email, user.firstName);
+
+        console.log(persistedUser.id);
+
+        const emailToken = generateEmailToken({id: persistedUser.id});
+
+        await verificationEmail(user.email, emailToken);
 
         // create user response dto
         const userResponseDto = new UserResponseDto(
@@ -412,6 +418,31 @@ const updateUserById = async (req, res) => {
     }
 }
 
+const updateEmailVerification = async(req, res) => {
+    const token = req.query.token;
+
+    if (!token) {
+        return res.status(400).send("Verification token missing");
+    }
+
+    try {
+        const payload = validateEmailToken(token);
+        console.log(payload);
+        console.log(payload.decoded.id);
+
+        const updatedUser = await UserRepo.updateEmailVerifiedStatus(
+            payload.decoded.id,
+            true
+        );
+
+        return res.status(200).send("Email verified successfully!");
+
+    } catch (error) {
+        console.error('Error verifying email:', error);
+        return res.status(400).send("Invalid or expired verification link");
+    }
+}
+
 module.exports = {
     createUser,
     createQRCode,
@@ -421,5 +452,6 @@ module.exports = {
     getAllUsers,
     updateCheckIn,
     updateUserById,
-    validateQR
+    validateQR,
+    updateEmailVerification
 }

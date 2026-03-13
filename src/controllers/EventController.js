@@ -251,7 +251,7 @@ const deleteEvent = async (req, res) => {
 const createActivity = async (req, res) => {
     try {
         const activityData = req.body;
-        console.log(activityData)
+
         const activity = new Activity(
             null,
             activityData.activityName,
@@ -299,7 +299,6 @@ const createActivity = async (req, res) => {
             activity: activityResponseDto
         });
     } catch (e) {
-        console.log(e);
         return res.status(500).json({
             message: 'Error creating activity',
             error: e.message || e
@@ -450,7 +449,6 @@ const updateEvent = async (req, res) => {
             message: 'Event updated successfully',
         });
     } catch (e) {
-        console.error(e);
         return res.status(500).json({
             message: 'Internal Server Error'
         });

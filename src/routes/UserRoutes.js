@@ -11,25 +11,36 @@ const {
 } = require('../controllers/UserController')
 const EventParticipantController= require('../controllers/EventParticipantsController')
 const { checkBodyForSpecialCharacters } = require('../middleware/validationMiddleware')
+const { authMiddleware } = require('../middleware/authMiddleware')
 
-router.post('/validate-qr', validateQR);
+// Protected
+router.post('/validate-qr', authMiddleware, validateQR);
 
-router.post('/register', checkBodyForSpecialCharacters, createUser)
+// Public
+router.post('/register', checkBodyForSpecialCharacters, createUser);
 
-router.get('/:id/qrcode', createQRCode)
+// Protected
+router.get('/:id/qrcode', authMiddleware, createQRCode);
 
-router.post('/login', checkBodyForSpecialCharacters, loginUser)
+// Public
+router.post('/login', checkBodyForSpecialCharacters, loginUser);
 
+// Public
 router.post('/admin-login', checkBodyForSpecialCharacters, loginAdminUser);
 
-router.post('/auth', authWithToken)
+// Protected
+router.post('/auth', authMiddleware, authWithToken);
 
-router.get('/all', EventParticipantController.getUsersByEvent)
+// Protected
+router.get('/all', authMiddleware, EventParticipantController.getUsersByEvent);
 
+// Public
 router.get('/event/:eventId/staff', EventParticipantController.getStaffForEvent);
 
-router.put('/:id/checkin', updateCheckIn);
+// Protected
+router.put('/:id/checkin', authMiddleware, updateCheckIn);
 
-router.put('/:id', checkBodyForSpecialCharacters, updateUserById);
+// Protected
+router.put('/:id', authMiddleware, checkBodyForSpecialCharacters, updateUserById);
 
 module.exports = router;

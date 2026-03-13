@@ -16,32 +16,14 @@ function generateToken(payload) {
 // Validate and verify a JWT token
 function validateToken(token) {
     try {
-        return jwt.verify(token, JWT_SECRET);
+        const decoded = jwt.verify(token,JWT_SECRET);
+        return {valid: true, decoded: decoded}
     } catch (err) {
         return { valid: false, error: err.message };  // Return error if invalid
     }
 }
 
-// Middleware to protect routes (optional, use if you want protected routes)
-function authMiddleware(req, res, next) {
-    const token = req.headers.authorization && req.headers.authorization.split(' ')[1];  // Expecting token in 'Bearer <token>' format
-
-    if (!token) {
-        return res.status(401).json({ message: 'No token provided' });
-    }
-
-    const validation = validateToken(token);
-
-    if (!validation.valid) {
-        return res.status(401).json({ message: 'Invalid token', error: validation.error });
-    }
-
-    req.user = validation.decoded;  // Attach decoded token data to request
-    next();  // Proceed to next middleware or route handler
-}
-
 module.exports = {
     generateToken,
-    validateToken,
-    authMiddleware
+    validateToken
 };

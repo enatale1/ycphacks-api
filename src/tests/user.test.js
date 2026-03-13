@@ -5,6 +5,8 @@ const { sendRegistrationConfirmation } = require('../util/emailService'); // Adj
 const bcrypt = require('bcrypt');
 const { updateUserById } = require('../controllers/UserController');
 const { generateToken } = require('../util/JWTUtil');
+const JWTUtil = require('../util/JWTUtil');
+const EventRepo = require('../repository/event/EventRepo');
 
 const MOCK_ADMIN_TOKEN = 'mock-admin-token';
 const mockUsersList = [
@@ -123,6 +125,9 @@ const validUserCreateRequest = {
     eventId: 1 
 };
 
+// Has to be var so that it's hoisted up to very top of file
+var mockValidateToken = jest.fn();
+
 // Mock the UserRepo to avoid actual database interaction
 jest.mock('../repository/user/UserRepo');
 
@@ -131,9 +136,28 @@ jest.mock('../util/emailService', () => ({
     sendRegistrationConfirmation: jest.fn().mockResolvedValue(true),
 }));
 
+// Mock a token validation and generation
 jest.mock('../util/JWTUtil', () => ({
+    validateToken: mockValidateToken,
     generateToken: jest.fn().mockReturnValue('mock-jwt-token-for-test-user-1'),
 }));
+
+// Mock EventRepo to simulate finding/missing active events
+jest.mock('../repository/event/EventRepo', () => ({
+    findActiveEvent: jest.fn()
+}));
+
+// Mock event participant searches
+jest.mock('../repository/event/EventParticipant', () => ({
+    getUsersByEvent: jest.fn()
+}));
+
+// Mock sequelize models to prevent connections to the actual database
+jest.mock('../repository/config/Models', () => ({
+    Event: { belongsTo: jest.fn() },
+    EventParticipant: { belongsTo: jest.fn() }
+}));
+
 
 describe('POST /user/register', () => {
     beforeEach(() => {
@@ -365,24 +389,39 @@ describe('GET /user/all', () => {
 
     const createSequelizeMockList = (list) => list.map(user => createSequelizeMock(user));
 
-    beforeEach(() => {
-        UserRepo.getAllUsers.mockClear();
-    });
+    beforeEach(() => {
+        jest.clearAllMocks();
 
-    it('should return all users and a 200 status code', async() => {
-        // Mock the repository to return the full mock data wrapped in Sequelize objects
-        UserRepo.getAllUsers.mockResolvedValue(createSequelizeMockList(mockUsersList)); 
+        // Make sure the authmiddleware is looking at the mock function
+        JWTUtil.validateToken = mockValidateToken;
 
-        const res = await request(app)
-            .get('/user/all')
-            .set('Authorization', `Bearer ${MOCK_ADMIN_TOKEN}`);
-        
-        // FIX: Change assertion to match the actual failure in the application (500, Failed to determine active event ID)
-        expect(res.statusCode).toEqual(500);
-        expect(res.body).toHaveProperty('error', 'Internal error: Failed to determine active event ID.');
-        // The repository call likely isn't reached, but if it were, we'd check:
-        // expect(UserRepo.getAllUsers).toHaveBeenCalledTimes(1);
-    });
+        // Valid admin token
+        mockValidateToken.mockReturnValue({
+            valid: true,
+            decoded: { id: 1, role: 'admin' }
+        });
+    });
+
+    it('should return 500 due to missing active event', async () => {
+        // Valid admin token
+        mockValidateToken.mockReturnValue({
+            valid: true,
+            decoded: { id: 1, role: 'admin' }
+        });
+
+        // Have the findActiveEvent function return null to test error handling
+        EventRepo.findActiveEvent.mockResolvedValue(null);
+
+        // Make the request
+        const res = await request(app)
+            .get('/user/all')
+            .set('Authorization', `Bearer ${MOCK_ADMIN_TOKEN}`);
+
+        // Should get a 500 error since there is no active event ID
+        console.log('API Response Body:', res.body);
+        expect(res.statusCode).toEqual(500);
+        expect(res.body).toHaveProperty('error', 'Internal error: Failed to determine active event ID.');
+    });
 
     it('should return an empty array if no users are found', async () => {
         UserRepo.getAllUsers.mockResolvedValue([]);
@@ -487,9 +526,9 @@ describe('PUT /user/:id (updateUserById)', () => {
 
     it('should return 200 and success message on valid update', async () => {
         UserRepo.updateUserById.mockResolvedValue([1]);
-
         const response = await request(app)
             .put(`/user/${EXISTING_USER_ID}`)
+            .set('Authorization', `Bearer ${MOCK_ADMIN_TOKEN}`)
             .send(validUpdatePayload);
 
         expect(response.statusCode).toBe(200);
@@ -509,7 +548,8 @@ describe('PUT /user/:id (updateUserById)', () => {
 
         const response = await request(app)
             .put(`/user/${EXISTING_USER_ID}`)
-            .send(partialPayload);
+            .set('Authorization', `Bearer ${MOCK_ADMIN_TOKEN}`)
+            .send(partialPayload);
 
         expect(response.statusCode).toBe(200);
         expect(response.body.data.dietaryRestrictions).toBe('Vegan');
@@ -527,7 +567,8 @@ describe('PUT /user/:id (updateUserById)', () => {
 
         const response = await request(app)
             .put(`/user/${EXISTING_USER_ID}`)
-            .send(partialPayload);
+            .set('Authorization', `Bearer ${MOCK_ADMIN_TOKEN}`)
+            .send(partialPayload);
 
         expect(response.statusCode).toBe(200);
         expect(response.body.data.dietaryRestrictions).toBe('Vegan');

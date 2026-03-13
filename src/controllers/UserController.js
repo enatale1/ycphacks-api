@@ -5,9 +5,10 @@ const UserResponseDto = require('../dto/UserResponseDto')
 const { generateToken, validateToken} = require('../util/JWTUtil');
 const bcrypt = require('bcrypt');
 const SALT_ROUNDS = 10;  // Number of salt rounds for bcrypt
-const { sendRegistrationConfirmation } = require('../util/emailService');
+const { sendRegistrationConfirmation, generateEmailToken, validateEmailToken, validatePasswordToken, verificationEmail, sendPasswordResetEmail, generatePasswordToken } = require('../util/emailService');
 const EventParticipantRepo = require('../repository/team/EventParticipantRepo');
 const QRCode = require('qrcode');
+const userRepo = require("../repository/user/UserRepo");
 
 /**
  * This function will create a user based on the data that gets sent in and return
@@ -120,7 +121,13 @@ const createUser = async (req, res) => {
         const token = generateToken({ email: user.email });
 
         // Fire off confirmation email
-        await sendRegistrationConfirmation(user.email, user.firstName);
+        //await sendRegistrationConfirmation(user.email, user.firstName);
+
+        console.log(persistedUser.id);
+
+        const emailToken = generateEmailToken({id: persistedUser.id});
+
+        await verificationEmail(user.email, emailToken);
 
         // create user response dto
         const userResponseDto = new UserResponseDto(
@@ -169,13 +176,13 @@ const loginUser = async (req, res) => {
         const user = await UserRepo.findByEmail(email);
 
         if (!user) {
-            return res.status(400).json({ message: 'Invalid email' });
+            return res.status(400).json({ message: 'Invalid email or password' });
         }
 
         // Compare the provided password with the stored hashed password
         const isPasswordValid = await bcrypt.compare(password, user.password);
         if (!isPasswordValid) {
-            return res.status(400).json({ message: 'Invalid password' });
+            return res.status(400).json({ message: 'Invalid email or password' });
         }
 
         // Generate JWT token
@@ -203,28 +210,15 @@ const loginUser = async (req, res) => {
 
 const authWithToken = async (req, res) => {
     try {
-        const tokenObj = req.body.token;
-        const tokenString = (typeof tokenObj === 'object' && tokenObj !== null) ? tokenObj.token : tokenObj;
-
-        // Ensure we actually have a string before proceeding
-        if (!tokenString || typeof tokenString !== 'string') {
-            return res.status(401).json({ message: 'Missing or malformed token in request body' });
-        }
-        
-        // Validate the token
-        const decodedToken = validateToken(tokenString);
-
-        if (decodedToken.error) {
-            return res.status(401).json({ message: 'Invalid token' });
-        }
-
         // Find the user by email
-        const user = await UserRepo.findByEmail(decodedToken.email);
+        const email = req.user.email;
+        const user = await UserRepo.findByEmail(email);
 
         if (!user) {
-            return res.status(400).json({ message: 'Invalid email or password' });
+            return res.status(404).json({ message: 'User not found' });
         }
 
+        const tokenString = req.headers.authorization.split(' ')[1];
         const userResponseDto = new UserResponseDto(
             user.id,
             user.email,
@@ -240,7 +234,7 @@ const authWithToken = async (req, res) => {
             data: userResponseDto
         });
     } catch (err) {
-        res.status(500).json({ message: 'Error validating token', error: err.message });
+        res.status(500).json({ message: 'Error fetching user profile', error: err.message });
     }
 }
 
@@ -425,6 +419,74 @@ const updateUserById = async (req, res) => {
     }
 }
 
+const updateEmailVerification = async(req, res) => {
+    const token = req.query.token;
+
+    if (!token) {
+        return res.status(400).send("Verification token missing");
+    }
+
+    try {
+        const payload = validateEmailToken(token);
+        console.log(payload);
+        console.log(payload.decoded.id);
+
+        const updatedUser = await UserRepo.updateEmailVerifiedStatus(
+            payload.decoded.id,
+            true
+        );
+
+        return res.status(200).send("Email verified successfully!");
+
+    } catch (error) {
+        console.error('Error verifying email:', error);
+        return res.status(400).send("Invalid or expired verification link");
+    }
+}
+const forgotPassword = async (req, res) => {
+    const { email } = req.body;
+
+    const user = await userRepo.findByEmail(email);
+
+    if (!user) {
+        return res.json({
+            message: "Account not found with that email address."
+        });
+    }
+
+    const resetToken = generatePasswordToken({ id: user.id });
+
+    await sendPasswordResetEmail(user.email, resetToken);
+
+    res.json({
+        message: "If an account exists, a reset link has been sent."
+    });
+}
+
+const resetPassword = async(req, res) => {
+    const { token, newPassword } = req.body;
+
+    if (!token || !newPassword) {
+        return res.status(400).json({ error: "Token and password required" });
+    }
+
+    try {
+        const payload = validatePasswordToken(token);
+        console.log(payload);
+        const userId = payload.decoded.id;
+        console.log(userId);
+
+        const hashedPassword = await bcrypt.hash(newPassword, 10);
+        await UserRepo.updatePassword(userId, hashedPassword);
+        return res.json({ message: "Password reset successfully" });
+
+    }
+    catch (err) {
+        console.error(err);
+        return res.status(400).json({error: "Invalid or expired token"});
+    }
+}
+
 module.exports = {
     createUser,
     createQRCode,
@@ -434,5 +496,8 @@ module.exports = {
     getAllUsers,
     updateCheckIn,
     updateUserById,
-    validateQR
+    validateQR,
+    updateEmailVerification,
+    forgotPassword,
+    resetPassword
 }

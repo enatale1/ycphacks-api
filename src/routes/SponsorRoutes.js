@@ -18,7 +18,6 @@ const {
     addSponsorTier
 } = require('../controllers/EventSponsorController');
 
-
 const {
     createImage,
     deleteImage,

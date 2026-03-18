@@ -1,5 +1,7 @@
 // src/app.js
-require('dotenv').config();
+const path = require('path');
+// Path to .env was moved to root of project
+require('dotenv').config({ path: path.resolve(__dirname, '../../.env')});
 const express = require('express');
 const cors = require('cors');
 const { sequelize } = require('./repository/config/index'); // <-- destructure the instance

@@ -20,7 +20,7 @@ const UserRepo = {
         return EventParticipantRepo.getUsersByEvent(eventId);
     },
 
-    async getUsersById(userId){
+    async getUserById(userId){
         return await User.findOne({
             where: { id: userId }
         })

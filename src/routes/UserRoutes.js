@@ -7,7 +7,11 @@ const {
     loginUser,
     loginAdminUser,
     authWithToken,
-    getAllUsers, updateCheckIn, updateUserById, validateQR
+    getUserById,
+    getProfileById,
+    updateCheckIn,
+    updateUserById,
+    validateQR
 } = require('../controllers/UserController')
 const EventParticipantController= require('../controllers/EventParticipantsController')
 const { checkBodyForSpecialCharacters } = require('../middleware/validationMiddleware')
@@ -40,7 +44,13 @@ router.get('/event/:eventId/staff', EventParticipantController.getStaffForEvent)
 // Protected
 router.put('/:id/checkin', authMiddleware, updateCheckIn);
 
-// Protected
+// Protected ,
 router.put('/:id', authMiddleware, checkBodyForSpecialCharacters, updateUserById);
+
+// Protectedr
+router.get('/:id', authMiddleware, getUserById);
+
+// Protected
+router.get('/:id/profile', authMiddleware, getProfileById);
 
 module.exports = router;

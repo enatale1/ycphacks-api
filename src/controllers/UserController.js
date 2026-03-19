@@ -9,6 +9,7 @@ const { sendRegistrationConfirmation, generateEmailToken, validateEmailToken, va
 const EventParticipantRepo = require('../repository/team/EventParticipantRepo');
 const QRCode = require('qrcode');
 const userRepo = require("../repository/user/UserRepo");
+const {UserProfileResponseDto} = require("../dto/UserProfileResponseDto");
 
 /**
  * This function will create a user based on the data that gets sent in and return
@@ -207,6 +208,77 @@ const loginUser = async (req, res) => {
     }
 };
 
+const getUserById = async (req, res) => {
+    try {
+        const {
+            id
+        } = req.params;
+
+        // Find the user
+        const user = await UserRepo.getUserById(id);
+
+        if (!user)
+            return res.status(404).json({ message: 'User not found' });
+
+        const userResponseDto = new UserResponseDto(
+            user.id,
+            user.email,
+            user.firstName,
+            user.lastName,
+            undefined,
+            user.role
+        )
+
+        // Respond with success and token
+        res.status(200).json({
+            message: 'User retrieval successful',
+            data: userResponseDto
+        });
+    } catch (err) {
+        console.log('500 Error; Cause: ' + err)
+        res.status(500).json({ message: 'Error retrieving user with id', error: err.message });
+    }
+};
+
+const getProfileById = async (req, res) => {
+    try {
+        const {
+            id
+        } = req.params;
+
+        // Find the user
+        const user = await UserRepo.getUserById(id);
+        console.log(user.toJSON());
+
+        if (!user)
+            return res.status(404).json({ message: 'User not found' });
+
+        const userProfileResponseDto = new UserProfileResponseDto(// not all info
+            user.id,
+            user.firstName,
+            user.lastName,
+            user.age,
+            user.gender,
+            user.pronouns,
+            user.country,
+            user.school,
+            user.major,
+            user.graduationYear,
+            user.levelOfStudy,
+            user.tShirtSize,
+            user.hackathonsAttended,
+            user.dietaryRestrictions
+        )
+
+        // Respond with success and token
+        res.status(200).json({
+            message: 'Profile retrieval successful',
+            data: userProfileResponseDto
+        });
+    } catch (err) {
+        res.status(500).json({ message: 'Error retrieving profile data', error: err.message });
+    }
+};
 
 const authWithToken = async (req, res) => {
     try {
@@ -246,7 +318,7 @@ const validateQR = async (req, res) => {
             return res.status(400).json({ valid: false});
         }
 
-        const user = await UserRepo.getUsersById(userId);
+        const user = await UserRepo.getUserById(userId);
 
         if(!user){
             return res.json({ valid: false });
@@ -255,7 +327,7 @@ const validateQR = async (req, res) => {
         await UserRepo.updateCheckInStatus(userId, true);
 
         //fetch the updated user
-        const updatedUser = await UserRepo.getUsersById(userId);
+        const updatedUser = await UserRepo.getUserById(userId);
 
         //The QR code is valid, return that this is true and the updatedUser
         return res.json({ valid: true, user: updatedUser});
@@ -263,8 +335,6 @@ const validateQR = async (req, res) => {
     } catch (err) {
         res.status(500).json({ valid: false});
     }
-
-
 }
 
 const loginAdminUser = async (req, res) => {
@@ -373,7 +443,26 @@ const updateCheckIn = async (req, res) => {
 
 const updateUserById = async (req, res) => {
     const userId = Number(req.params.id);
-    const updatePayload = req.body;
+
+    const updatedProfileData = {
+        firstName: req.body.firstName,
+        lastName: req.body.lastName,
+        age: req.body.age,
+        gender: req.body.gender,
+        pronouns: req.body.pronouns,
+        country: req.body.country,
+        school: req.body.school,
+        major: req.body.major,
+        graduationYear: req.body.graduationYear,
+        levelOfStudy: req.body.levelOfStudy,
+        tShirtSize: req.body.tShirtSize,
+        hackathonsAttended: req.body.hackathonsAttended,
+        dietaryRestrictions: req.body.dietaryRestrictions
+    };
+
+    if (Number.isNaN(userId) || !Number.isInteger(userId))
+        return res.status(400).json({ error: "User ID is not a valid integer." });
+
 
     const allowedFields = [
         'firstName', 'lastName', 'age', 'email', 'phoneNumber', 'school', 
@@ -384,9 +473,8 @@ const updateUserById = async (req, res) => {
 
     const sanitizedUpdateData = {};
     for(const key of allowedFields){
-        if(updatePayload.hasOwnProperty(key)){
-            sanitizedUpdateData[key] = updatePayload[key];
-        }
+        if(updatedProfileData)
+            sanitizedUpdateData[key] = updatedProfileData[key];
     }
 
     if(Object.keys(sanitizedUpdateData).length === 0){
@@ -413,7 +501,6 @@ const updateUserById = async (req, res) => {
         return res.status(200).json({ message: "User updated successfully.", data: sanitizedUpdateData });
 
     } catch (error) {
-        console.error("Controller Error during user update:", error);
         // Send a generic error or a more specific one if validation failed before the try block
         return res.status(500).json({ error: "Failed to update user due to a server error." });
     }
@@ -490,6 +577,8 @@ const resetPassword = async(req, res) => {
 module.exports = {
     createUser,
     createQRCode,
+    getUserById,
+    getProfileById,
     loginUser,
     authWithToken,
     loginAdminUser,

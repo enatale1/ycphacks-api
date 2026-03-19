@@ -41,27 +41,27 @@ const HardwareController = {
             res.status(500).json({ error: err.message || "Failed to retrieve hardware availability." });
         }
     },
-        async createHardware(req, res) {
-            try {
-                console.log("Incoming hardware body:", req.body);
-                const newHardware = await HardwareRepo.createHardware({
-                    hardwareName: req.body.hardwareName,
-                    serial: req.body.serial,
-                    functional: req.body.functional,
-                    description: req.body.description,
-                });
+    async createHardware(req, res) {
+        try {
+            console.log("Incoming hardware body:", req.body);
+            const newHardware = await HardwareRepo.createHardware({
+                hardwareName: req.body.hardwareName,
+                serial: req.body.serial,
+                functional: req.body.functional,
+                description: req.body.description,
+            });
 
-                res.status(201).json({
-                    message: "Hardware added successfully",
-                    hardware: newHardware,
-                    id: newHardware.id // <--- Add this! (Assuming your Sequelize model populates 'id')
-                });
+            res.status(201).json({
+                message: "Hardware added successfully",
+                hardware: newHardware,
+                id: newHardware.id // <--- Add this! (Assuming your Sequelize model populates 'id')
+            });
 
-            } catch (err) {
-                console.error("Error adding hardware:", err);
-                res.status(500).json({ message: "Failed to add hardware", error: err.message });
-            }
-        },
+        } catch (err) {
+            console.error("Error adding hardware:", err);
+            res.status(500).json({ message: "Failed to add hardware", error: err.message });
+        }
+    },
 
     async updateHardware(req, res) {
         try {

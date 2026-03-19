@@ -418,7 +418,6 @@ describe('GET /user/all', () => {
             .set('Authorization', `Bearer ${MOCK_ADMIN_TOKEN}`);
 
         // Should get a 500 error since there is no active event ID
-        console.log('API Response Body:', res.body);
         expect(res.statusCode).toEqual(500);
         expect(res.body).toHaveProperty('error', 'Internal error: Failed to determine active event ID.');
     });

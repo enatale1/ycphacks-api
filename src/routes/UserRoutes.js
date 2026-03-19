@@ -7,7 +7,7 @@ const {
     loginUser,
     loginAdminUser,
     authWithToken,
-    getAllUsers, updateCheckIn, updateUserById, validateQR
+    getAllUsers, updateCheckIn, updateUserById, validateQR, getUserInfo
 } = require('../controllers/UserController')
 const EventParticipantController= require('../controllers/EventParticipantsController')
 const { checkBodyForSpecialCharacters } = require('../middleware/validationMiddleware')
@@ -21,6 +21,8 @@ router.post('/register', checkBodyForSpecialCharacters, createUser);
 
 // Protected
 router.get('/:id/qrcode', authMiddleware, createQRCode);
+
+router.get('/:id/info', authMiddleware, getUserInfo);
 
 // Public
 router.post('/login', checkBodyForSpecialCharacters, loginUser);
@@ -42,5 +44,6 @@ router.put('/:id/checkin', authMiddleware, updateCheckIn);
 
 // Protected
 router.put('/:id', authMiddleware, checkBodyForSpecialCharacters, updateUserById);
+
 
 module.exports = router;

@@ -5,7 +5,8 @@ class UserResponseDto {
         firstName,
         lastName,
         token,
-        role
+        role,
+        isEmailVerified
     ) {
         this.id = id
         this.email = email
@@ -13,6 +14,7 @@ class UserResponseDto {
         this.lastName = lastName
         this.token = token
         this.role = role
+        this.isEmailVerified = isEmailVerified
     }
 }
 

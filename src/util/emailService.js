@@ -20,8 +20,10 @@ const transporter = nodemailer.createTransport({ //switch this out with the SMTP
 
 const JWT_SECRET = process.env.NEW_EMAIL_API_KEY || 'your-secret-key';
 const JWT_SECRET_PASSWORD = process.env.PASSWORD || 'your-secret-key';
-async function verificationEmail(email, emailToken) {
+async function verificationEmail(email) {
     try {
+        const user = await userRepo.findByEmail(email);
+        const emailToken = generateEmailToken({id: user.id});
         const info = await transporter.sendMail({
             from: '"Ethan Nelson" <pedro90@ethereal.email>',
             to: email,

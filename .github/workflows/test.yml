@@ -26,6 +26,14 @@ jobs:
 
       # Step 4: Run tests
       - name: Run tests
+        env:
+          # This is so the code can find the process.env
+          NODE_ENV: test
+          # Pull from GitHub Secrets
+          DO_SPACE_ENDPOINT: ${{ secrets.DO_SPACE_ENDPOINT }}
+          DO_ACCESS_KEY: ${{ secrets.DO_ACCESS_KEY }}
+          DO_SECRET_KEY: ${{ secrets.DO_SECRET_KEY }}
+          DO_SPACE_NAME: ${{ secrets.DO_SPACE_NAME }}
         run: |
           export NODE_ENV=test
           npx jest src/tests/user.test.js src/tests/hardware.test.js

@@ -438,9 +438,7 @@ const updateEmailVerification = async(req, res) => {
             payload.decoded.id,
             true
         );
-
-        return res.status(200).send({message: "Email verified successfully!"});
-
+        res.redirect("http://localhost:8080/login")
 
     } catch (error) {
         console.error('Error verifying email:', error);
@@ -494,7 +492,6 @@ const resetPassword = async(req, res) => {
 const resendVerification = async(req, res) => {
     try {
         const resend = verificationEmail(req.body.email);
-        res.redirect('http://localhost:8080/profile')
     } catch {
         return res.status(400).json({error: "Was unable to send the verification email"});
     }

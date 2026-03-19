@@ -26,7 +26,6 @@ jobs:
 
       # Step 4: Run tests
       - name: Run tests
-        working-directory: ./ycphacks-api
         env:
           # This is so the code can find the process.env
           NODE_ENV: test

@@ -22,7 +22,7 @@ class User {
         mlhCodeOfConduct,
         mlhPrivacyPolicy,
         mlhEmails,
-        isVerified
+        isVerified,
     ) {
         this.firstName = firstName;
         this.lastName = lastName;

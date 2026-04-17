@@ -137,6 +137,10 @@ const User = sequelize.define(
         isEmailVerified: {
             type: DataTypes.BOOLEAN,
             defaultValue: false
+        },
+        emailVerifiedTimestamp: {
+            type: DataTypes.DATE,
+            defaultValue: false
         }
     },
     {

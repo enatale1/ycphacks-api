@@ -21,24 +21,44 @@ const transporter = nodemailer.createTransport({ //switch this out with the SMTP
 const JWT_SECRET = process.env.NEW_EMAIL_API_KEY || 'your-secret-key';
 const JWT_SECRET_PASSWORD = process.env.PASSWORD || 'your-secret-key';
 async function verificationEmail(email) {
-    try {
-        const user = await userRepo.findByEmail(email);
-        const emailToken = generateEmailToken({id: user.id});
-        const info = await transporter.sendMail({
-            from: '"Ethan Nelson" <pedro90@ethereal.email>',
-            to: email,
-            subject: "Verify your email",
-            html: `
+    const user = await userRepo.findByEmail(email);
+
+    if(!user) {
+        console.error('User not found');
+        return;
+    }
+
+    const lastTimeStamp = user.emailVerifiedTimestamp;
+    console.log()
+
+    const secondsDifference = lastTimeStamp
+        ? (Date.now() - new Date(lastTimeStamp).getTime()) / 1000
+        : null;
+
+    if (!lastTimeStamp || secondsDifference >= 30) {
+        try {
+            const emailToken = generateEmailToken({id: user.id});
+            const info = await transporter.sendMail({
+                from: '"Ethan Nelson" <pedro90@ethereal.email>',
+                to: email,
+                subject: "Verify your email",
+                html: `
     <h2>Email Verification</h2>
     <p>Click the link below to verify your account:</p>
     <a href="http://localhost:3000/verify/verify-email?token=${emailToken}">
       Verify Email
     </a>
   `
-        });
-    }
-    catch (error) {
-        console.error('Error sending email:', error);
+            });
+            await userRepo.updateEmailTimestamp(user.id, new Date());
+
+        } catch (error) {
+            console.error('Error sending email:', error);
+        }
+    } else {
+        const error = new Error(`Please wait ${Math.ceil(30 - secondsDifference)} seconds`);
+        error.statusCode = 429;
+        throw error;
     }
 }
 

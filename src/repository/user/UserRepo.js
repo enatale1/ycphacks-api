@@ -56,6 +56,20 @@ const UserRepo = {
         return user;
     },
 
+    async updateEmailTimestamp(userId, date) {
+        const user = await User.findByPk(userId);
+
+        if(!user) {
+            const error = new Error(`User with ID ${userId} not found.`);
+            error.status = 404;
+            throw error;
+        }
+        user.emailVerifiedTimestamp = date;
+
+        await user.save();
+        return user;
+    },
+
     async updateUserById(userId, updateData){
         try{
             const [rowsAffected] = await User.update(updateData, {

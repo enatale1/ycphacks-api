@@ -605,9 +605,14 @@ const resetPassword = async(req, res) => {
 
 const resendVerification = async(req, res) => {
     try {
-        const resend = verificationEmail(req.body.email);
-    } catch {
-        return res.status(400).json({error: "Was unable to send the verification email"});
+        const resend = await verificationEmail(req.body.email);
+        return res.status(200).json({
+            message: "Email sent successfully"
+        });
+    } catch (error) {
+        return res.status(error.statusCode || 500).json({
+            message: error.message
+        });
     }
 }
 

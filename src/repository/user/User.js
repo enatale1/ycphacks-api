@@ -140,7 +140,7 @@ const User = sequelize.define(
         },
         emailVerifiedTimestamp: {
             type: DataTypes.DATE,
-            defaultValue: false
+            defaultValue: DataTypes.NOW()
         }
     },
     {

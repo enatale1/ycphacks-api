@@ -23,7 +23,7 @@ const createUser = async (req, res) => {
     try {
 
         // convert user into user model
-        const userData = req.body
+        const userData = req.body;
         const { eventId } = req.body;
 
         if(!eventId){
@@ -67,7 +67,6 @@ const createUser = async (req, res) => {
             userData.mlhCodeOfConduct,
             userData.mlhPrivacyPolicy,
             userData.mlhEmails,
-            userData.isVerified,
         )
 
         // Converts to plain object for Sequelize
@@ -94,7 +93,7 @@ const createUser = async (req, res) => {
             mlhCodeOfConduct: user.mlhCodeOfConduct,
             mlhPrivacyPolicy: user.mlhPrivacyPolicy,
             mlhEmails: user.mlhEmails,
-            isVerified: user.isVerified,
+            isVerified: false,
         };
 
         // persist user  ONLY IF THE DATA IS VALID
@@ -107,10 +106,6 @@ const createUser = async (req, res) => {
 
         // Fire off confirmation email
         //await sendRegistrationConfirmation(user.email, user.firstName);
-
-        const emailToken = generateEmailToken({id: persistedUser.id});
-
-        await verificationEmail(persistedUser.email);
 
         // create user response dto
         const userResponseDto = new UserResponseDto(

@@ -18,8 +18,8 @@ const transporter = nodemailer.createTransport({ //switch this out with the SMTP
     }
 });
 
-const JWT_SECRET = process.env.NEW_EMAIL_API_KEY || 'your-secret-key';
-const JWT_SECRET_PASSWORD = process.env.PASSWORD || 'your-secret-key';
+const JWT_SECRET = process.env.NEW_EMAIL_API_KEY;
+const JWT_SECRET_PASSWORD = process.env.PASSWORD;
 async function verificationEmail(email) {
     const user = await userRepo.findByEmail(email);
 
@@ -29,7 +29,6 @@ async function verificationEmail(email) {
     }
 
     const lastTimeStamp = user.emailVerifiedTimestamp;
-    console.log()
 
     const secondsDifference = lastTimeStamp
         ? (Date.now() - new Date(lastTimeStamp).getTime()) / 1000
@@ -54,6 +53,7 @@ async function verificationEmail(email) {
 
         } catch (error) {
             console.error('Error sending email:', error);
+            throw error;
         }
     } else {
         const error = new Error(`Please wait ${Math.ceil(30 - secondsDifference)} seconds`);
